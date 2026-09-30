@@ -244,8 +244,10 @@ def main() -> None:
     ap.add_argument("--final", action="store_true",
                     help="--contact-sheet と併用：selected.json の決定稿だけで一覧画像を作る")
     ap.add_argument("--suit", choices=SUITS + ("minor", "all"),
-                    help="--contact-sheet と併用：区分別に out/contact_sheet_{suit}.png を出力する"
-                         "（minor＝小アルカナ4スート、all＝大アルカナを含む全5区分）")
+                    help="--contact-sheet と併用：区分別に出力する（minor＝小アルカナ4スート、all＝大アルカナを含む全5区分）。"
+                         "選定用は out/contact_sheet_{suit}.png、--final は out/contact_sheet_{suit}_final.png")
+    ap.add_argument("--choices-only", action="store_true",
+                    help="--contact-sheet と併用：案が2つ以上あるカード（エース・人物札など）だけを載せる")
     ap.add_argument("--assets-sheet", action="store_true", help="素材の一覧画像 out/contact_sheet_assets.png を出力する")
     ap.add_argument("--no-composite", action="store_true", help="合成を行わない（一覧画像のみ）")
     ap.add_argument("--selected", type=Path, default=SELECTED_PATH, help="採用案リストのパス")
@@ -258,13 +260,18 @@ def main() -> None:
     if args.contact_sheet:
         cards = load_cards()
         selected = json.loads(args.selected.read_text(encoding="utf-8")) if args.final else None
+        # Final sheets get their own names so they never overwrite the selection sheets.
+        tail = "_final" if args.final else ""
         if args.suit is None:
-            targets = [(None, CONTACT_SHEET_PATH)]
+            targets = [(None, CONTACT_SHEET_PATH.with_name(f"contact_sheet{tail}.png"))]
         else:
             suits = {"all": SUITS, "minor": SUITS[1:]}.get(args.suit, (args.suit,))
-            targets = [(s, ROOT / "out" / f"contact_sheet_{s}.png") for s in suits]
+            targets = [(s, ROOT / "out" / f"contact_sheet_{s}{tail}.png") for s in suits]
         for suit, out_path in targets:
             ids = suit_ids(cards, suit)
+            if args.choices_only:
+                ids = {cid for cid in (ids if ids is not None else cards)
+                       if len(list(RAW_DIR.glob(f"{cid:02d}_{cards[cid]['slug']}_?.png"))) > 1}
             if selected is not None:
                 cols = 7 if suit in SUITS[1:] else 6  # 14 cards per suit -> 7 x 2
                 path = build_final_sheet(selected, out_path, ids, cols=cols)

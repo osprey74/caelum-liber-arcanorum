@@ -84,7 +84,7 @@ python generate.py --variants 2 --max-images 20      # この実行では最大2
 3. `selected.json` に採用案を記入します。例：`{"0": "b", "17": "a"}`
 4. 不採用のカードは `--only` で再生成します。必要に応じて `cards.json` のモチーフを調整します。
 5. `python composite.py` を実行すると、`selected.json` に記入したカードだけを合成します。
-6. `python composite.py --contact-sheet --final --no-composite` を実行すると、決定稿だけを並べた一覧画像を `out/contact_sheet.png` に出力します（全案の一覧を上書きします）。
+6. `python composite.py --contact-sheet --final --no-composite` を実行すると、決定稿だけを並べた一覧画像を `out/contact_sheet_final.png` に出力します（選定用の `out/contact_sheet.png` は上書きしません）。
 
 合成は次の手順で行います。
 
@@ -144,20 +144,37 @@ python test_layout.py            # 記号の個数・重なりの自動テスト
 - 記号の位置・大きさは、追補の §3 に従います。重なる場合は、自動で5%ずつ縮小します。
 - 記号の周囲の背景を柔らかく暗くします（暗い後光、濃さ85%）。
 
-#### ワンド（斜め格子、`crossed.py`、`handoff-pips-crossed-layout.md`）
+> **2026-10-01 時点の状態**：ワンドとソードの数札は、総司が手でデザインする方針に切り替えて作業中です。デザイン用の素材（記号単体の透過 PNG、スート別のフレーム画像、目安線のレイヤー）は `out/design_kit/` にあります。以下の自動配置は、その取り込みまでの暫定の仕組みです。
 
-- 光背の円（`layout_config.json` の `wands.circle`：中心 (512, 611)、R=350）の内側に、±20°の杖を 0.30R 間隔で交差させます。奇数枚は中央に縦の杖を加えます。
-- 交点に花飾り（0.10R）を置き、杖は明度 +15%・彩度 +10% に補正します。配置可能領域は 0.90R です。
+#### ワンド・ソード（ラフのトレース、`crossed.py`、`handoff-swords-trace.md`・`handoff-wands-swords-unify.md`）
 
-#### ソード（ラフのトレース、`handoff-swords-trace.md`）
+- ワンドとソードは同じ骨格 `swords_traced.json` を使います。ワンドは、剣の柄頭 → 杖の下端、切っ先 → 杖の上端に対応させます（花飾りは使いません）。
+- 光背の円は `layout_config.json` の `wands.circle`（中心 (512, 611)、R=350）と `swords.circle`（中心 (512, 469)、R=322）です。
+- ワンドは明度 +15%・彩度 +10% に補正します。
 
-- 剣の位置は、総司のラフ `refs/sword_rough.png` から剣1本ずつの柄頭と切っ先をトレースした `swords_traced.json` に従います。
-  - 座標は光背の円（`swords.circle`：中心 (512, 469)、R=322）の中心を原点、R を単位とし、y は下向きです。
+- 位置は、総司のラフ `refs/sword_rough.png` から剣1本ずつの柄頭と切っ先をトレースした `swords_traced.json` に従います。
+  - 座標は光背の円の中心を原点、R を単位とし、y は下向きです。
   - 描画順はファイルの並び順です。剣どうし・ユニットどうしの重なりは意図したものです。
-- 剣の素材は、切っ先・柄頭・刃の中心線・鍔の上端を計測して位置を合わせます（画像の中心は使いません）。
-- 剣の太さ：剣全体を長さに合わせて縦横同率に縮めたうえで、**刃（切っ先〜鍔の上端）だけを横方向に太くし**、4の剣の刃の幅にそろえます。柄は変形させません。
-  - 刃の太さは最大 +100% です。太くした刃の幅が鍔の幅の70%を超えると警告します。
-- 配置可能領域は 0.96R で、縮小は行いません。0.96R を超える剣は警告しますが、`swords.area_allow` に記載した剣（6・7 の剣4と剣5、10 の剣8と剣9）は許容します。
+- 素材は、上端・下端・中心線を計測して位置を合わせます（画像の中心は使いません）。
+- 太さ：全体を長さに合わせて縦横同率に縮めたうえで、**剣は刃（切っ先〜鍔の上端）、杖は軸（両端の若葉の飾りを除いた部分）だけを横方向に太くし**、拡大後の4の幅にそろえます。柄と若葉の飾りは変形させません。
+  - 太くする量は最大 +100% です。剣は、太くした刃の幅が鍔の幅の70%を超えると警告します。
+- 光背の円による制限はありません。全要素がアーチ窓の内側（縁から 0.02R の余白）と下端 y=0.89 に収まるかを検証します。
+- 大きさ（拡大率）と上下位置は、下記の size_tuner で目で決めます。
+
+#### ワンド・ソードの大きさの調整（size_tuner）
+
+ワンドとソードの数札は、同じ `swords_traced.json` の骨格を使います（ワンドは柄頭→杖の下端、切っ先→杖の上端）。大きさと上下位置は、規則ではなく目で決めます。
+
+```sh
+python size_tuner.py        # ブラウザで http://127.0.0.1:8765/ を開く（終了は Ctrl+C）
+```
+
+- スートと枚数を選び、拡大率（0.8〜3.0、光背の円の中心が基準）と上下位置（±0.3R、下向きが正）をスライダーで調整します。
+- 右側のカードは `layout.py` と同じ処理で描いたフレーム合成後の見た目で、左に同じ枚数のカップを並べます。
+- アーチ窓（縁から 0.02R の余白）または下端 y=0.89 を超えると、カードの枠と警告欄が赤くなります（調整はそのまま続けられます）。
+- 「layout_config.json に書き出す」で `{suit}.size` に保存します。直前のファイルは `out/review/layout_config.backup.json` に残ります。
+- 刃・杖の軸の太さは、拡大後の 4 を基準にそろえます。4 の拡大率を変えると、ほかの枚数の太さも変わります。
+- `size` に値のない枚数は、`handoff-wands-swords-unify.md` §3 の自動規則で大きさを決めます。
 
 `swords_traced.json` の作り方：
 
@@ -169,7 +186,7 @@ python test_layout.py            # 記号の個数・重なりの自動テスト
 ### 4. 一覧と合成
 
 ```sh
-python composite.py --contact-sheet --suit minor --no-composite           # スート別の全案一覧
-python composite.py --contact-sheet --final --suit minor --no-composite   # スート別の決定稿一覧（各14枚）
+python composite.py --contact-sheet --suit minor --choices-only --no-composite  # 選定用：案が複数あるカードの全案（out/contact_sheet_{suit}.png）
+python composite.py --contact-sheet --final --suit minor --no-composite         # スート別の決定稿一覧（out/contact_sheet_{suit}_final.png）
 python composite.py                                                       # selected.json の全カードを合成
 ```

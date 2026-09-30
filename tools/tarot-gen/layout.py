@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -53,11 +54,11 @@ LAYOUT_CONFIG_PATH = ROOT / "layout_config.json"
 #   y_offset_mode : "uniform" adds y_offset to every row; "taper" adds the full y_offset to the top row,
 #              nothing to the bottom row and a proportional amount in between, so the bottom never moves.
 #   brighten : brightness +15% / saturation +10% on the symbol, in memory only.
-#   layout   : "grid" (addendum 3.1 positions) or "crossed" (handoff-pips-crossed-layout.md; needs "circle"
-#              from layout_config.json). The crossed layout ignores scale/glow/y_offset and the dark halo.
-#   rosette_mode : crossed wands only; "all" crossings or only the "center" column.
+#   layout   : "grid" (addendum 3.1 positions) or "crossed" (the traced skeleton of swords_traced.json,
+#              handoff-wands-swords-unify.md; needs "circle" from layout_config.json). The crossed layout
+#              ignores scale/glow/y_offset and the dark halo.
 SUIT_CONFIG = {
-    "wands":     {"layout": "crossed", "brighten": True, "rosette_mode": "all"},
+    "wands":     {"layout": "crossed", "brighten": True},
     "swords":    {"layout": "crossed", "brighten": False},
     "cups":      {"layout": "grid", "scale": 1.00, "glow": False, "y_offset": 0.00, "brighten": False},
     "pentacles": {"layout": "grid", "scale": 1.00, "glow": False, "y_offset": 0.00, "brighten": False},
@@ -68,7 +69,7 @@ OUTLINE_PX = 2
 OUTLINE_OPACITY = 0.60
 # Extra assets used by the crossed layouts, per suit: role -> asset name in selected_assets.json.
 CROSSED_ASSETS = {
-    "wands": {"staff": "symbol_wands_long", "rosette": "rosette"},
+    "wands": {"staff": "symbol_wands_long"},
     "swords": {"straight": "symbol_swords"},
 }
 GLOW_COLOR = (243, 233, 210)   # ivory, #F3E9D2
@@ -158,7 +159,7 @@ def load_config(path: Path | None = None) -> dict[str, dict]:
 
 def suit_config(suit: str, config: dict[str, dict] | None) -> dict:
     defaults = {"layout": "grid", "scale": 1.0, "glow": False, "y_offset": 0.0, "y_offset_mode": "uniform",
-                "brighten": False, "rosette_mode": "all"}
+                "brighten": False}
     return {**defaults, **(config or SUIT_CONFIG).get(suit, {})}
 
 
@@ -308,29 +309,138 @@ def render_crossed(bg: Image.Image, items: list[crossed.Item]) -> Image.Image:
     return canvas.convert("RGB")
 
 
-def layout_crossed(bg: Image.Image, suit: str, rank: int, extras: dict[str, Image.Image], cfg: dict,
-                   visible: np.ndarray | None) -> tuple[Image.Image, list[Placement], float, list[str]]:
-    circle = crossed.Circle.from_config(cfg)
-    rosette = extras.get("rosette")
+_CUPS_BBOX: dict[int, tuple[int, int, int, int]] = {}
+_SCALES: dict[tuple[str, int], float] = {}
+
+
+def cups_bbox(rank: int) -> tuple[int, int, int, int]:
+    """Bounding box (x0, y0, x1, y1) of the cups symbols of `rank`: the size reference for crossed suits."""
+    if rank not in _CUPS_BBOX:
+        chosen = json.loads(SELECTED_ASSETS_PATH.read_text(encoding="utf-8"))
+        bg = Image.open(ASSETS_DIR / f"bg_cups_{chosen['bg_cups']}.png")
+        sym = Image.open(ASSETS_DIR / f"symbol_cups_{chosen['symbol_cups']}.png")
+        _, placements, _, _ = layout_card(bg, sym, "cups", rank, None, load_config())
+        union = np.zeros((SIZE[1], SIZE[0]), dtype=bool)
+        for p in placements:
+            union |= p.mask()
+        ys, xs = np.where(union)
+        _CUPS_BBOX[rank] = (int(xs.min()), int(ys.min()), int(xs.max()), int(ys.max()))
+    return _CUPS_BBOX[rank]
+
+
+def window_inner(circle: crossed.Circle, visible: np.ndarray | None) -> np.ndarray:
+    """Visible arch window shrunk by WINDOW_MARGIN, with the bottom crop line applied."""
+    vis = visible if visible is not None else visible_region()
+    k = 2 * math.ceil(crossed.WINDOW_MARGIN * circle.r) + 1
+    inner = cv2.erode(vis.astype(np.uint8), np.ones((k, k), np.uint8)) > 0
+    inner[int(BOTTOM_LIMIT * SIZE[1]) + 1:, :] = False
+    return inner
+
+
+def crossed_scale(suit: str, rank: int, symbol: Image.Image, axis: crossed.LongAxis, circle: crossed.Circle,
+                  traced: dict, inner: np.ndarray, label: str) -> tuple[float, dict]:
+    """Enlargement of the traced skeleton (handoff-wands-swords-unify.md 3), with the steps taken."""
+    key = (suit, rank)
+    ref_scale = None if rank == crossed.WIDTH_REF_RANK else _SCALES.get((suit, crossed.WIDTH_REF_RANK))
+    if ref_scale is None and rank != crossed.WIDTH_REF_RANK:
+        ref_scale, _ = crossed_scale(suit, crossed.WIDTH_REF_RANK, symbol, axis, circle, traced, inner, label)
+
+    def build(k):
+        return crossed.traced_symbols(rank, circle, symbol, axis, traced, k,
+                                      k if rank == crossed.WIDTH_REF_RANK else ref_scale, label)[0]
+
+    cx0, cy0, cx1, cy1 = cups_bbox(rank)
+    cup_h, cup_w = cy1 - cy0 + 1, cx1 - cx0 + 1
+    k = 1.0
+    for _ in range(4):                                      # height match (the bbox is ~linear in k)
+        x0, y0, x1, y1 = crossed.group_bbox(build(k))
+        k *= cup_h / (y1 - y0 + 1)
+    by_height = k
+    for _ in range(4):                                      # width cap
+        x0, y0, x1, y1 = crossed.group_bbox(build(k))
+        if x1 - x0 + 1 <= crossed.CUP_WIDTH_CAP * cup_w + 0.5:
+            break
+        k *= crossed.CUP_WIDTH_CAP * cup_w / (x1 - x0 + 1)
+    by_width = k
+    steps = 0
+    while crossed.window_violations(build(k), inner) and steps < 60:
+        k *= crossed.SCALE_STEP
+        steps += 1
+    _SCALES[key] = k
+    return k, {"by_height": round(by_height, 3), "by_width_cap": round(by_width, 3), "final": round(k, 3),
+               "window_steps": steps}
+
+
+def crossed_setup(suit: str, extras: dict[str, Image.Image], cfg: dict):
+    """Cleaned (and brightened) symbol, its measured axis and the message label for a crossed suit."""
     if suit == "swords":
-        traced = json.loads((ROOT / crossed.TRACED_SWORDS).read_text(encoding="utf-8"))
-        items, warnings, fit = crossed.swords_items(rank, circle, extras["straight"], traced, SIZE,
-                                                    cfg.get("area_allow"))
+        symbol, label = clean_symbol(extras["straight"]), "ソード"
+        maker = crossed.LongAxis.sword
     elif suit == "wands":
-        staff = clean_symbol(extras["staff"])
-        if cfg["brighten"]:
-            staff = brighten_symbol(staff)
-        items, warnings = crossed.wands_items(rank, circle, staff, rosette, cfg["rosette_mode"])
-        fit = 1.0
+        symbol, label = clean_symbol(extras["staff"]), "ワンド"
+        maker = crossed.LongAxis.staff
     else:
         raise ValueError(f"crossed layout is not defined for {suit}")
-    if cfg["brighten"] and suit == "swords":
-        items = [crossed.Item(brighten_symbol(i.image), i.offset, i.kind) for i in items]
-    symbols = [Placement((0.0, 0.0), 0.0, i.image, i.offset) for i in items if i.kind == "symbol"]
-    rosettes = [Placement((0.0, 0.0), 0.0, i.image, i.offset) for i in items if i.kind == "rosette"]
-    area_check = [] if suit == "swords" else crossed.outside_area(items, circle, SIZE)  # swords check 0.96R themselves
-    warnings = warnings + area_check + check_placements(symbols + rosettes, visible)
-    return render_crossed(bg, items), symbols, fit, warnings
+    if cfg["brighten"]:
+        symbol = brighten_symbol(symbol)
+    return symbol, maker(symbol), label
+
+
+def hand_size(cfg: dict, rank: int) -> tuple[float, float] | None:
+    """(scale, dy) chosen by hand in size_tuner.html (layout_config.json -> suit.size), if any."""
+    entry = (cfg.get("size") or {}).get(str(rank))
+    return (float(entry["scale"]), float(entry.get("dy", 0.0))) if entry else None
+
+
+def crossed_constraints(items: list[crossed.Item], circle: crossed.Circle, visible: np.ndarray | None
+                        ) -> tuple[int, int]:
+    """(px outside the arch window minus the 0.02R margin, px below the bottom crop line y=0.89)."""
+    vis = visible if visible is not None else visible_region()
+    k = 2 * math.ceil(crossed.WINDOW_MARGIN * circle.r) + 1
+    inner = cv2.erode(vis.astype(np.uint8), np.ones((k, k), np.uint8)) > 0
+    m = crossed._mask(items, SIZE) > 0
+    below = m.copy()
+    below[: int(BOTTOM_LIMIT * SIZE[1]) + 1, :] = False
+    return int((m & ~inner).sum()), int(below.sum())
+
+
+def crossed_card(bg: Image.Image, suit: str, rank: int, extras: dict[str, Image.Image], cfg: dict,
+                 visible: np.ndarray | None, scale: float, dy: float, ref_scale: float
+                 ) -> tuple[Image.Image, list[crossed.Item], list[str], tuple[int, int]]:
+    """Render one crossed card with an explicit enlargement, offset and rank-4 reference scale."""
+    circle = crossed.Circle.from_config(cfg)
+    traced = json.loads((ROOT / crossed.TRACED_SWORDS).read_text(encoding="utf-8"))
+    symbol, axis, label = crossed_setup(suit, extras, cfg)
+    items, warnings = crossed.traced_symbols(rank, circle, symbol, axis, traced, scale, ref_scale, label, dy)
+    window_px, bottom_px = crossed_constraints(items, circle, visible)
+    if window_px:
+        warnings.append(f"{label}の{rank}: {window_px}px がアーチ窓の余白（{crossed.WINDOW_MARGIN}R）の外にあります")
+    if bottom_px:
+        warnings.append(f"{label}の{rank}: {bottom_px}px が下端 y={BOTTOM_LIMIT} より下にあります")
+    return render_crossed(bg, items), items, warnings, (window_px, bottom_px)
+
+
+def layout_crossed(bg: Image.Image, suit: str, rank: int, extras: dict[str, Image.Image], cfg: dict,
+                   visible: np.ndarray | None) -> tuple[Image.Image, list[Placement], float, list[str]]:
+    """Sizes come from layout_config.json (suit.size, set with size_tuner.html); ranks without an entry
+    fall back to the automatic rule of handoff-wands-swords-unify.md 3."""
+    circle = crossed.Circle.from_config(cfg)
+    traced = json.loads((ROOT / crossed.TRACED_SWORDS).read_text(encoding="utf-8"))
+    symbol, axis, label = crossed_setup(suit, extras, cfg)
+
+    def size_of(r: int) -> tuple[float, float]:
+        chosen = hand_size(cfg, r)
+        if chosen:
+            return chosen
+        k, _ = crossed_scale(suit, r, symbol, axis, circle, traced, window_inner(circle, visible), label)
+        return k, 0.0
+
+    scale, dy = size_of(rank)
+    ref_scale = scale if rank == crossed.WIDTH_REF_RANK else size_of(crossed.WIDTH_REF_RANK)[0]
+    img, items, warnings, _ = crossed_card(bg, suit, rank, extras, cfg, visible, scale, dy, ref_scale)
+    symbols = [Placement((0.0, 0.0), 0.0, i.image, i.offset) for i in items]
+    warnings += check_placements(symbols, visible)
+    return img, symbols, scale, warnings
 
 
 def layout_card(bg: Image.Image, symbol: Image.Image | None, suit: str, rank: int,

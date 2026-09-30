@@ -127,20 +127,16 @@ def test_real_assets() -> None:
 
 
 def test_crossed_geometry() -> None:
-    """Symbol counts and area limits of the crossed layouts for every rank, with synthetic shapes."""
+    """Symbol counts of the traced skeleton for every rank, with a synthetic rod as sword and staff."""
     import crossed
     circle = crossed.Circle(512, 600, 340)
     rod = synthetic_symbol("rod")
-    for rank in range(2, 11):
-        items, _ = crossed.wands_items(rank, circle, rod, rod)
-        n = sum(i.kind == "symbol" for i in items)
-        assert n == rank, f"wands {rank}: {n} staffs"
-        assert not crossed.outside_area(items, circle, layout.SIZE), f"wands {rank}: outside the area"
-        traced = json.loads((layout.ROOT / crossed.TRACED_SWORDS).read_text(encoding="utf-8"))
-        items, _, _ = crossed.swords_items(rank, circle, rod, traced, layout.SIZE)
-        n = sum(i.kind == "symbol" for i in items)
-        assert n == rank, f"swords {rank}: {n} swords"
-        # Traced swords are never shrunk; only count them here (the 0.96R limit is reported as a warning).
+    traced = json.loads((layout.ROOT / crossed.TRACED_SWORDS).read_text(encoding="utf-8"))
+    for maker, name in ((crossed.LongAxis.sword, "swords"), (crossed.LongAxis.staff, "wands")):
+        axis = maker(crossed.alpha_crop(rod))
+        for rank in range(2, 11):
+            items, _ = crossed.traced_symbols(rank, circle, rod, axis, traced, 1.2, 1.2, name, 0.05)
+            assert len(items) == rank, f"{name} {rank}: {len(items)} symbols"
 
 
 if __name__ == "__main__":

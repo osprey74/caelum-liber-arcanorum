@@ -1,10 +1,10 @@
 """Crossed compositions for the Wands and Swords pip cards (handoff-pips-crossed-layout.md).
 
-Swords : traced from the rough refs/sword_rough.png (handoff-swords-trace.md). Every sword is drawn
-         from its pommel to its tip as listed in swords_traced.json; the sword asset is aligned by its
-         measured blade axis, pommel and tip, never by the image center.
-Wands  : diagonal lattice. floor(n/2) staffs at +20 deg and as many at -20 deg, spaced 0.30R;
-         odd n adds one vertical staff. Rosettes sit on the crossings.
+Swords and wands share the skeleton traced from the rough refs/sword_rough.png (swords_traced.json,
+handoff-swords-trace.md): every symbol runs from its bottom end (pommel / staff foot) to its top end.
+The skeleton is enlarged about the halo center so the group matches the cups group of the same rank
+(handoff-wands-swords-unify.md). Assets are aligned by their measured axis, never by the image center;
+only the blade (swords) or shaft (wands) is widened, hilts and leaf ends are not deformed.
 
 Coordinates are in pixels of the 1024x1536 canvas unless noted; lengths in R are relative to the
 halo circle measured on the suit background (layout_config.json -> "circle").
@@ -22,22 +22,20 @@ from PIL import Image
 
 ALPHA_THRESHOLD = 16
 
-# --- swords (handoff-swords-trace.md) ---
+# --- traced layout (handoff-swords-trace.md, handoff-wands-swords-unify.md) ---
+# Swords and wands share the skeleton traced from the rough: every symbol runs from its bottom end
+# (sword pommel / staff foot) to its top end (sword tip / staff top), in R units around the halo center.
 TRACED_SWORDS = "swords_traced.json"   # next to this file
-SWORD_AREA = 0.96           # swords may use the circle up to 0.96R (the rough goes close to the rim); no shrinking
-WIDTH_REF_RANK = 4          # blades are widened to the blade width of the swords on the 4
-MAX_BLADE_WIDEN = 1.00      # blade width/length ratio may grow by at most +100% (hilts are never deformed)
-MAX_BLADE_TO_GUARD = 0.70   # warn when a widened blade is wider than 70% of its own guard
-GUARD_WIDTH_RATIO = 2.5     # the guard starts at the first row wider than 2.5x the blade
-
-# --- wands ---
-WAND_ANGLE_DEG = 20.0
-WAND_SPACING = 0.30
-WAND_ROSETTE = 0.10
+WIDTH_REF_RANK = 4          # the widened part is made as wide as on the (enlarged) 4
+MAX_WIDEN = 1.00            # the widened part may grow by at most +100% (ends/hilts are never deformed)
+MAX_BLADE_TO_GUARD = 0.70   # swords: warn when a widened blade is wider than 70% of its own guard
+GUARD_WIDTH_RATIO = 2.5     # swords: the guard starts at the first row wider than 2.5x the blade
+LEAF_WIDTH_RATIO = 2.2      # wands: rows wider than 2.2x the shaft near the ends belong to the leaf ends
+CUP_WIDTH_CAP = 1.15        # enlarged group width may be at most 1.15x the cups group width
+WINDOW_MARGIN = 0.02        # everything stays 0.02R inside the visible arch window
+SCALE_STEP = 0.98           # enlargement is lowered in 2% steps while a constraint is violated
 
 # --- common ---
-AREA = 0.90                 # everything must stay inside the 0.90R circle
-END_MARGIN = 0.05           # staffs end 0.05R inside the area circle
 
 
 @dataclass
@@ -68,70 +66,85 @@ def alpha_crop(im: Image.Image) -> Image.Image:
     return out.crop(out.getchannel("A").getbbox())
 
 
-def centered_item(im: Image.Image, x: float, y: float, kind: str) -> Item:
-    return Item(im, (round(x - im.width / 2), round(y - im.height / 2)), kind)
-
-
-def rosette_item(rosette: Image.Image, size_px: float, x: float, y: float) -> Item:
-    rosette = alpha_crop(rosette)
-    s = size_px / max(rosette.width, rosette.height)
-    im = rosette.resize((max(1, round(rosette.width * s)), max(1, round(rosette.height * s))), Image.LANCZOS)
-    return centered_item(im, x, y, "rosette")
-
-
-# ---------------------------------------------------------------- swords
+# ---------------------------------------------------------------- traced symbols
 
 @dataclass
-class SwordAxis:
-    """Center line of the sword asset: x of the blade axis, tip row and pommel row (asset pixels)."""
+class LongAxis:
+    """Center line of a long symbol asset (sword or staff), in asset pixels.
+
+    tip / pommel: top and bottom rows. The rows seg_top .. seg_bottom (exclusive) form the part that may
+    be widened (sword: the blade, tip .. guard top; staff: the shaft between the leaf ends).
+    seg_w: typical width of that part; guard_w: widest row of the sword guard (0 for staffs)."""
     x: float
     tip: float
     pommel: float
+    seg_top: float
+    seg_bottom: float
+    seg_w: float
+    guard_w: float = 0.0
 
-    guard: float = 0.0      # top row of the guard (blade above, hilt from here down)
-    blade_w: float = 0.0    # typical blade width (asset pixels)
-    guard_w: float = 0.0    # widest row of the guard
-
-    @classmethod
-    def measure(cls, sword: Image.Image) -> "SwordAxis":
-        a = np.asarray(sword.getchannel("A")) >= ALPHA_THRESHOLD
+    @staticmethod
+    def _rows(img: Image.Image) -> tuple[np.ndarray, int, int, np.ndarray]:
+        a = np.asarray(img.getchannel("A")) >= ALPHA_THRESHOLD
         ys = np.where(a.any(axis=1))[0]
         tip, pommel = int(ys.min()), int(ys.max())
+        widths = np.array([np.ptp(np.where(r)[0]) + 1 if r.any() else 0 for r in a[tip:pommel + 1]])
+        return a, tip, pommel, widths
+
+    @classmethod
+    def sword(cls, sword: Image.Image) -> "LongAxis":
+        a, tip, pommel, widths = cls._rows(sword)
         # Blade axis: median row center over the upper half (the blade), unaffected by the guard.
         centers = [np.where(a[y])[0].mean() for y in range(tip, tip + (pommel - tip) // 2) if a[y].any()]
-        widths = np.array([np.ptp(np.where(r)[0]) + 1 if r.any() else 0 for r in a[tip:pommel + 1]])
-        blade_w = np.median(widths[len(widths) // 5: len(widths) // 2])
+        blade_w = float(np.median(widths[len(widths) // 5: len(widths) // 2]))
         wide = widths > GUARD_WIDTH_RATIO * blade_w
         guard = tip + int(np.argmax(wide)) if wide.any() else pommel   # no guard: all blade
-        return cls(float(np.median(centers)), float(tip), float(pommel), float(guard), float(blade_w),
+        return cls(float(np.median(centers)), float(tip), float(pommel), float(tip), float(guard), blade_w,
                    float(widths.max()))
 
-
-def widened_sword(sword: Image.Image, axis: SwordAxis, widen: float) -> tuple[Image.Image, SwordAxis]:
-    """The asset with only the blade (tip .. guard top) widened by `widen` around the blade axis;
-    the hilt (guard, grip, pommel) is kept pixel for pixel."""
-    top, guard, bottom = int(axis.tip), int(axis.guard), int(axis.pommel) + 1
-    blade = sword.crop((0, top, sword.width, guard))
-    hilt = sword.crop((0, guard, sword.width, bottom))
-    bw = max(1, round(sword.width * widen))
-    bx = axis.x * widen                                        # blade axis in the widened blade
-    left = max(bx, axis.x)
-    width = math.ceil(left + max(bw - bx, sword.width - axis.x))
-    out = Image.new("RGBA", (width, blade.height + hilt.height), (0, 0, 0, 0))
-    out.alpha_composite(blade.resize((bw, blade.height), Image.LANCZOS), (round(left - bx), 0))
-    out.alpha_composite(hilt, (round(left - axis.x), blade.height))
-    return out, SwordAxis(left, 0.0, float(out.height - 1), float(blade.height), axis.blade_w * widen, axis.guard_w)
+    @classmethod
+    def staff(cls, staff: Image.Image) -> "LongAxis":
+        a, tip, pommel, widths = cls._rows(staff)
+        n = len(widths)
+        shaft_w = float(np.median(widths[int(n * 0.3): int(n * 0.7)]))
+        wide = widths > LEAF_WIDTH_RATIO * shaft_w
+        head = np.where(wide[: int(n * 0.3)])[0]
+        foot = np.where(wide[int(n * 0.7):])[0]
+        top = tip + (int(head.max()) + 1 if head.size else 0)
+        bottom = tip + (int(n * 0.7) + int(foot.min()) if foot.size else n)
+        centers = [np.where(a[y])[0].mean() for y in range(top, bottom) if a[y].any()]
+        return cls(float(np.median(centers)), float(tip), float(pommel), float(top), float(bottom), shaft_w)
 
 
-def place_sword(sword: Image.Image, axis: SwordAxis, length: float, angle: float,
-                from_pommel: float, x: float, y: float, width_scale: float | None = None) -> Item:
-    """Sword of `length` tilted by `angle` (degrees, clockwise from vertical: positive = tip leans right),
-    rotated about the point `from_pommel` of its length above the pommel, which lands on (x, y).
-    `width_scale` scales the asset horizontally (default: the same factor as the length)."""
+def widened(img: Image.Image, axis: LongAxis, widen: float) -> tuple[Image.Image, LongAxis]:
+    """The asset with only rows seg_top .. seg_bottom widened by `widen` around the axis; the rest
+    (sword hilt, staff leaf ends) is kept pixel for pixel."""
+    t, s0, s1, b = int(axis.tip), int(axis.seg_top), int(axis.seg_bottom), int(axis.pommel) + 1
+    parts = [img.crop((0, t, img.width, s0)), img.crop((0, s0, img.width, s1)), img.crop((0, s1, img.width, b))]
+    sw = max(1, round(img.width * widen))
+    sx = axis.x * widen                                        # axis inside the widened part
+    left = max(sx, axis.x)
+    width = math.ceil(left + max(sw - sx, img.width - axis.x))
+    out = Image.new("RGBA", (width, b - t), (0, 0, 0, 0))
+    y = 0
+    for k, part in enumerate(parts):
+        if part.height:
+            if k == 1:
+                out.alpha_composite(part.resize((sw, part.height), Image.LANCZOS), (round(left - sx), y))
+            else:
+                out.alpha_composite(part, (round(left - axis.x), y))
+        y += part.height
+    return out, LongAxis(left, 0.0, float(out.height - 1), float(s0 - t), float(s1 - t), axis.seg_w * widen,
+                         axis.guard_w)
+
+
+def place_sword(sword: Image.Image, axis: LongAxis, length: float, angle: float,
+                from_pommel: float, x: float, y: float) -> Item:
+    """Symbol of `length` tilted by `angle` (degrees, clockwise from vertical: positive = top leans right),
+    rotated about the point `from_pommel` of its length above the bottom end, which lands on (x, y)."""
     s = length / (axis.pommel - axis.tip)
-    sx = s if width_scale is None else width_scale
-    im = sword.resize((max(1, round(sword.width * sx)), max(1, round(sword.height * s))), Image.LANCZOS)
-    rx = axis.x * sx
+    im = sword.resize((max(1, round(sword.width * s)), max(1, round(sword.height * s))), Image.LANCZOS)
+    rx = axis.x * s
     ry = (axis.pommel - from_pommel * (axis.pommel - axis.tip)) * s
     # Pad so that the reference point is the exact center, then rotate about the center.
     half = math.ceil(math.hypot(max(rx, im.width - rx), max(ry, im.height - ry))) + 2
@@ -149,47 +162,48 @@ def sword_length(spec: dict) -> float:
     return math.hypot(tx - hx, ty - hy)
 
 
-def traced_sword(sword: Image.Image, axis: SwordAxis, circle: Circle, spec: dict, blade_px: float
-                 ) -> tuple[Item, float, float]:
-    """Sword from its pommel (hilt) to its tip, both in R units around the circle center (y down).
-    The sword is scaled uniformly to its length; then its blade alone is widened so that it is
-    `blade_px` wide on the card (at most +MAX_BLADE_WIDEN). Returns the item, the requested widening
-    and the blade/guard width ratio after widening."""
-    R = circle.r
-    (hx, hy), (tx, ty) = spec["hilt"], spec["tip"]
-    length = sword_length(spec) * R
-    s = length / (axis.pommel - axis.tip)
-    widen = blade_px / (axis.blade_w * s)
-    applied = min(max(widen, 1.0), 1.0 + MAX_BLADE_WIDEN)
-    img, ax = widened_sword(sword, axis, applied)
-    angle = math.degrees(math.atan2(tx - hx, -(ty - hy)))     # clockwise from vertical
-    item = place_sword(img, ax, length, angle, 0.0, circle.cx + hx * R, circle.cy + hy * R)
-    return item, widen, ax.blade_w / ax.guard_w
+def traced_rank(traced: dict, rank: int) -> list[dict]:
+    return traced.get(str(rank)) or traced.get(rank)
 
 
-def swords_items(rank: int, circle: Circle, straight_sword: Image.Image, traced: dict,
-                 size: tuple[int, int] = (1024, 1536), area_allow: dict | None = None
-                 ) -> tuple[list[Item], list[str], float]:
-    """Swords traced from the rough (swords_traced.json), drawn in the file's order.
+def traced_symbols(rank: int, circle: Circle, symbol: Image.Image, axis: LongAxis, traced: dict,
+                   scale: float, ref_scale: float, label: str, dy: float = 0.0) -> tuple[list[Item], list[str]]:
+    """Symbols of `rank` on the traced skeleton enlarged by `scale` about the halo center, then moved
+    down by `dy` (in R; negative = up).
 
-    Overlaps between swords are intended. Nothing is shrunk: swords beyond SWORD_AREA produce a warning
-    unless listed in `area_allow` ({"rank": [sword numbers]}, from layout_config.json)."""
-    sword = alpha_crop(straight_sword)
-    axis = SwordAxis.measure(sword)
-    ref = traced.get(str(WIDTH_REF_RANK)) or traced.get(WIDTH_REF_RANK)
-    blade_px = axis.blade_w * np.mean([sword_length(s) for s in ref]) * circle.r / (axis.pommel - axis.tip)
-    warnings: list[str] = []
-    items = []
-    for i, spec in enumerate(traced.get(str(rank)) or traced.get(rank), 1):
-        item, widen, to_guard = traced_sword(sword, axis, circle, spec, blade_px)
-        items.append(item)
-        if widen - 1 > MAX_BLADE_WIDEN:
-            warnings.append(f"ソードの{rank}: 剣{i}の刃の太さ {widen - 1:+.0%} が上限 +{MAX_BLADE_WIDEN:.0%} を超えるため、上限で止めました")
-        if to_guard > MAX_BLADE_TO_GUARD:
-            warnings.append(f"ソードの{rank}: 剣{i}の刃の幅が鍔の {to_guard:.0%} で、{MAX_BLADE_TO_GUARD:.0%} を超えます")
-    allowed = set((area_allow or {}).get(str(rank), []))
-    warnings += outside_area(items, circle, size, SWORD_AREA, skip=allowed)
-    return items, warnings, 1.0
+    Each symbol is scaled uniformly to its length; then only its widenable part is widened so that it is
+    as wide as on the WIDTH_REF_RANK card enlarged by `ref_scale` (at most +MAX_WIDEN)."""
+    R = circle.r * scale
+    ref = traced_rank(traced, WIDTH_REF_RANK)
+    target_px = axis.seg_w * np.mean([sword_length(s) for s in ref]) * circle.r * ref_scale / (axis.pommel - axis.tip)
+    items, warnings = [], []
+    for i, spec in enumerate(traced_rank(traced, rank), 1):
+        (hx, hy), (tx, ty) = spec["hilt"], spec["tip"]
+        length = sword_length(spec) * R
+        s = length / (axis.pommel - axis.tip)
+        widen = target_px / (axis.seg_w * s)
+        applied = min(max(widen, 1.0), 1.0 + MAX_WIDEN)
+        img, ax = widened(symbol, axis, applied)
+        angle = math.degrees(math.atan2(tx - hx, -(ty - hy)))     # clockwise from vertical
+        items.append(place_sword(img, ax, length, angle, 0.0, circle.cx + hx * R,
+                                 circle.cy + dy * circle.r + hy * R))
+        if widen - 1 > MAX_WIDEN:
+            warnings.append(f"{label}の{rank}: {i}本目の太さ {widen - 1:+.0%} が上限 +{MAX_WIDEN:.0%} を超えるため、上限で止めました")
+        if ax.guard_w and ax.seg_w / ax.guard_w > MAX_BLADE_TO_GUARD:
+            warnings.append(f"{label}の{rank}: {i}本目の刃の幅が鍔の {ax.seg_w / ax.guard_w:.0%} で、"
+                            f"{MAX_BLADE_TO_GUARD:.0%} を超えます")
+    return items, warnings
+
+
+def group_bbox(items: list[Item], size: tuple[int, int] = (1024, 1536)) -> tuple[int, int, int, int]:
+    ys, xs = np.where(_mask(items, size) > 0)
+    return int(xs.min()), int(ys.min()), int(xs.max()), int(ys.max())
+
+
+def window_violations(items: list[Item], inner: np.ndarray, size: tuple[int, int] = (1024, 1536)) -> int:
+    """Visible pixels of the items outside `inner` (the arch window shrunk by the margin)."""
+    m = _mask(items, size) > 0
+    return int((m & ~inner).sum())
 
 
 def _mask(items: list[Item], size: tuple[int, int]) -> np.ndarray:
@@ -211,101 +225,3 @@ def min_gap(group_a: list[Item], group_b: list[Item], size: tuple[int, int] = (1
         return float("inf")
     dist = cv2.distanceTransform((1 - b).astype(np.uint8), cv2.DIST_L2, 5)
     return float(dist[a > 0].min())
-
-
-# ---------------------------------------------------------------- wands
-
-def chord(px: float, py: float, ux: float, uy: float, radius: float) -> tuple[float, float] | None:
-    """Parameters t1 < t2 where the line p + t*u (|u| = 1) crosses a circle at the origin."""
-    b = px * ux + py * uy
-    c = px * px + py * py - radius * radius
-    disc = b * b - c
-    if disc <= 0:
-        return None
-    root = math.sqrt(disc)
-    return -b - root, -b + root
-
-
-def wands_lines(rank: int, R: float) -> list[tuple[float, float, float]]:
-    """(x at y=0, angle in degrees from vertical, positive = top leans right) for each staff."""
-    k = rank // 2
-    xs = [(j - (k - 1) / 2) * WAND_SPACING * R for j in range(k)]
-    lines = [(x, WAND_ANGLE_DEG) for x in xs] + [(x, -WAND_ANGLE_DEG) for x in xs]
-    if rank % 2:
-        lines.append((0.0, 0.0))
-    return lines
-
-
-def wand_segment(x: float, angle: float, R: float) -> tuple[tuple[float, float], float, float]:
-    """Center (local), length and angle of the longest staff on this line inside the area circle."""
-    a = math.radians(angle)
-    ux, uy = math.sin(a), -math.cos(a)                            # direction toward the top
-    t = chord(x, 0.0, ux, uy, (AREA - END_MARGIN) * R)
-    if t is None:
-        raise ValueError("staff line misses the area circle")
-    t1, t2 = t
-    mid = (t1 + t2) / 2
-    return (x + ux * mid, uy * mid), t2 - t1, angle
-
-
-def crossing(l1: tuple[float, float], l2: tuple[float, float]) -> tuple[float, float] | None:
-    (x1, a1), (x2, a2) = l1, l2
-    t1, t2 = math.tan(math.radians(a1)), math.tan(math.radians(a2))
-    if abs(t1 - t2) < 1e-9:
-        return None
-    # x = x0 - y * tan(a) with y pointing down (top leans right for positive a).
-    y = (x1 - x2) / (t1 - t2)
-    return x1 - y * t1, y
-
-
-def wands_items(rank: int, circle: Circle, staff: Image.Image, rosette: Image.Image | None,
-                rosette_mode: str = "all") -> tuple[list[Item], list[str]]:
-    R = circle.r
-    staff = alpha_crop(staff)
-    items: list[Item] = []
-    lines = wands_lines(rank, R)
-    for x, angle in lines:
-        (lx, ly), length, ang = wand_segment(x, angle, R)
-        s = length / staff.height
-        im = staff.resize((max(1, round(staff.width * s)), round(length)), Image.LANCZOS)
-        # PIL rotates counter-clockwise; a positive angle (top leaning right) is a clockwise turn.
-        im = im.rotate(-ang, resample=Image.BICUBIC, expand=True)
-        items.append(centered_item(im, circle.cx + lx, circle.cy + ly, "symbol"))
-    if rosette is not None:
-        diag = [l for l in lines if l[1] != 0.0]
-        right = [l for l in diag if l[1] > 0]
-        left = [l for l in diag if l[1] < 0]
-        for l1 in right:
-            for l2 in left:
-                p = crossing(l1, l2)
-                if p is None or math.hypot(*p) > (AREA - WAND_ROSETTE / 2) * R:
-                    continue
-                if rosette_mode == "center" and abs(p[0]) > 1e-6:
-                    continue
-                items.append(rosette_item(rosette, WAND_ROSETTE * R, circle.cx + p[0], circle.cy + p[1]))
-    return items, []
-
-
-# ---------------------------------------------------------------- checks
-
-def outside_area(items: list[Item], circle: Circle, size: tuple[int, int], area: float = AREA,
-                 skip: set[int] | None = None) -> list[str]:
-    """Items with visible pixels outside the `area` x R circle (0.90R unless given)."""
-    h, w = size[1], size[0]
-    ys, xs = np.mgrid[0:h, 0:w]
-    inside = (xs - circle.cx) ** 2 + (ys - circle.cy) ** 2 <= (area * circle.r) ** 2
-    msgs = []
-    for i, it in enumerate(items, 1):
-        if skip and i in skip:
-            continue
-        a = np.asarray(it.image.getchannel("A")) >= ALPHA_THRESHOLD
-        x, y = it.offset
-        x0, y0 = max(x, 0), max(y, 0)
-        x1, y1 = min(x + a.shape[1], w), min(y + a.shape[0], h)
-        sub = a[y0 - y:y1 - y, x0 - x:x1 - x]
-        clipped = a.sum() - sub.sum()
-        out = int((sub & ~inside[y0:y1, x0:x1]).sum() + clipped)
-        if out:
-            label = "記号" if it.kind == "symbol" else "花飾り"
-            msgs.append(f"{label}{i}の {out}px が配置可能領域（{area}R）の外にあります")
-    return msgs

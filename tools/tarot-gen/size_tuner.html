@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Size Tuner</title>
+<style>
+  :root {
+    --bg: #11151f; --panel: #1a2030; --line: #2c3548; --text: #e8e2d4; --muted: #9aa3b5;
+    --gold: #d9bf7a; --accent: #6fa8dc; --bad: #e0524d; --bad-bg: #3a1c1f; --ok: #6cbf7f;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 14px/1.5 "Segoe UI", "Hiragino Sans", "Yu Gothic UI", sans-serif; }
+  header { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center;
+           padding: 12px 16px; border-bottom: 1px solid var(--line); background: var(--panel); }
+  h1 { font-size: 16px; margin: 0; color: var(--gold); font-weight: 600; }
+  .group { display: flex; gap: 4px; flex-wrap: wrap; }
+  button { font: inherit; color: var(--text); background: #232b3d; border: 1px solid var(--line);
+           border-radius: 6px; padding: 5px 10px; cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  button.on { background: var(--accent); border-color: var(--accent); color: #0d1320; font-weight: 600; }
+  button.rank { min-width: 38px; position: relative; }
+  button.rank.warn::after { content: ""; position: absolute; top: 3px; right: 3px; width: 7px; height: 7px;
+                            border-radius: 50%; background: var(--bad); }
+  button.save { background: var(--gold); color: #1a1406; border-color: var(--gold); font-weight: 600; }
+  button.save:disabled { opacity: .5; cursor: default; }
+  #dirty { color: var(--gold); font-size: 13px; }
+  main { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 320px; gap: 16px; padding: 16px; }
+  @media (max-width: 1100px) { main { grid-template-columns: 1fr 1fr; } aside { grid-column: 1 / -1; } }
+  @media (max-width: 640px) { main { grid-template-columns: 1fr; } }
+  figure { margin: 0; }
+  figcaption { color: var(--muted); margin-bottom: 6px; }
+  .card { position: relative; aspect-ratio: 2 / 3; background: #0c1018; border: 3px solid transparent;
+          border-radius: 8px; overflow: hidden; }
+  .card img { width: 100%; height: 100%; display: block; object-fit: contain; }
+  .card.bad { border-color: var(--bad); }
+  .card .busy { position: absolute; inset: auto 8px 8px auto; background: #000a; color: var(--muted);
+                padding: 2px 8px; border-radius: 4px; font-size: 12px; display: none; }
+  .card.loading .busy { display: block; }
+  aside { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
+  aside h2 { font-size: 14px; margin: 0 0 10px; color: var(--gold); }
+  .ctl { margin-bottom: 14px; }
+  .ctl label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .ctl input[type=number] { width: 80px; font: inherit; color: var(--text); background: #0f1420;
+                            border: 1px solid var(--line); border-radius: 4px; padding: 2px 6px; }
+  .ctl input[type=range] { width: 100%; accent-color: var(--accent); }
+  .hint { color: var(--muted); font-size: 12px; margin: 4px 0 0; }
+  #warnings { margin: 10px 0 0; padding: 0; list-style: none; }
+  #warnings li { background: var(--bad-bg); color: #ffb3ae; border-left: 3px solid var(--bad);
+                 padding: 6px 8px; margin-bottom: 6px; border-radius: 4px; font-size: 13px; }
+  #warnings li.ok { background: #16271c; color: #b7e4c1; border-left-color: var(--ok); }
+  table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 13px; }
+  th, td { padding: 3px 6px; text-align: right; border-bottom: 1px solid var(--line); }
+  th:first-child, td:first-child { text-align: left; }
+  tr.cur td { background: #243049; }
+  tr.warn td:first-child { color: var(--bad); }
+  #msg { margin-top: 10px; font-size: 13px; color: var(--muted); min-height: 1.5em; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Size Tuner — ワンド・ソード数札</h1>
+  <div class="group" id="suits"></div>
+  <div class="group" id="ranks"></div>
+  <button class="save" id="save" disabled>layout_config.json に書き出す</button>
+  <span id="dirty"></span>
+</header>
+<main>
+  <figure>
+    <figcaption id="cupsCap">カップ（比較用）</figcaption>
+    <div class="card" id="cupsCard"><img id="cupsImg" alt=""><span class="busy">読み込み中…</span></div>
+  </figure>
+  <figure>
+    <figcaption id="cardCap"></figcaption>
+    <div class="card" id="card"><img id="cardImg" alt=""><span class="busy">描画中…</span></div>
+  </figure>
+  <aside>
+    <h2 id="panelTitle"></h2>
+    <div class="ctl">
+      <label>拡大率 <input type="number" id="scaleNum" min="0.8" max="3" step="0.01"></label>
+      <input type="range" id="scale" min="0.8" max="3" step="0.01">
+      <p class="hint">光背の円の中心を基準に、ラフの配置を縦横同率で拡大します。</p>
+    </div>
+    <div class="ctl">
+      <label>上下位置（R） <input type="number" id="dyNum" min="-0.3" max="0.3" step="0.01"></label>
+      <input type="range" id="dy" min="-0.3" max="0.3" step="0.01">
+      <p class="hint">正の値で下へ、負の値で上へ動きます。</p>
+    </div>
+    <p class="hint">刃・杖の軸の太さは、拡大後の「4」を基準に決まります。4 の拡大率を変えると、ほかの枚数の太さも変わります。</p>
+    <ul id="warnings"></ul>
+    <table>
+      <thead><tr><th>枚数</th><th>拡大率</th><th>上下</th><th>制約</th></tr></thead>
+      <tbody id="table"></tbody>
+    </table>
+    <div id="msg"></div>
+  </aside>
+</main>
+<script>
+const SUITS = { swords: "ソード", wands: "ワンド" };
+const RANKS = [2, 3, 4, 5, 6, 7, 8, 9, 10];
+let values = null;           // {suit: {rank: {scale, dy}}}
+let status = { swords: {}, wands: {} };   // last constraint result per rank: true = violated
+let saved = "";
+let suit = "swords", rank = 2;
+let seq = 0, timer = null;
+
+const $ = id => document.getElementById(id);
+
+function remember() {
+  try { localStorage.setItem("sizeTuner.view", JSON.stringify({ suit, rank })); } catch (e) {}
+}
+function restore() {
+  try {
+    const v = JSON.parse(localStorage.getItem("sizeTuner.view") || "null");
+    if (v && SUITS[v.suit] && RANKS.includes(v.rank)) { suit = v.suit; rank = v.rank; }
+  } catch (e) {}
+}
+
+function buttons() {
+  $("suits").innerHTML = "";
+  for (const [k, name] of Object.entries(SUITS)) {
+    const b = document.createElement("button");
+    b.textContent = name; b.className = k === suit ? "on" : "";
+    b.onclick = () => { suit = k; select(); };
+    $("suits").append(b);
+  }
+  $("ranks").innerHTML = "";
+  for (const r of RANKS) {
+    const b = document.createElement("button");
+    b.textContent = r;
+    b.className = "rank" + (r === rank ? " on" : "") + (status[suit][r] ? " warn" : "");
+    b.onclick = () => { rank = r; select(); };
+    $("ranks").append(b);
+  }
+}
+
+function table() {
+  $("table").innerHTML = RANKS.map(r => {
+    const v = values[suit][r], st = status[suit][r];
+    const mark = st === undefined ? "—" : (st ? "違反" : "OK");
+    return `<tr class="${r === rank ? "cur" : ""} ${st ? "warn" : ""}"><td>${r}</td>` +
+           `<td>${v.scale.toFixed(2)}</td><td>${v.dy >= 0 ? "+" : ""}${v.dy.toFixed(2)}</td><td>${mark}</td></tr>`;
+  }).join("");
+}
+
+function dirty() {
+  const now = JSON.stringify(values);
+  $("dirty").textContent = now === saved ? "" : "未保存の変更があります";
+  $("save").disabled = now === saved;
+}
+
+function controls() {
+  const v = values[suit][rank];
+  $("scale").value = $("scaleNum").value = v.scale.toFixed(2);
+  $("dy").value = $("dyNum").value = v.dy.toFixed(2);
+  $("panelTitle").textContent = `${SUITS[suit]}の ${rank}`;
+  $("cardCap").textContent = `${SUITS[suit]}の ${rank}（layout.py で描画）`;
+  $("cupsCap").textContent = `カップの ${rank}（比較用）`;
+}
+
+async function getJSON(url, opts) {
+  const res = await fetch(url, opts);
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+  return data;
+}
+
+async function loadCups() {
+  $("cupsCard").classList.add("loading");
+  const r = rank;
+  try {
+    const d = await getJSON(`/api/cups?rank=${r}`);
+    if (r === rank) $("cupsImg").src = "data:image/png;base64," + d.image;
+  } catch (e) { $("msg").textContent = "カップの読み込みに失敗しました：" + e.message; }
+  $("cupsCard").classList.remove("loading");
+}
+
+function scheduleRender() {
+  clearTimeout(timer);
+  timer = setTimeout(renderCard, 200);
+}
+
+async function renderCard() {
+  const my = ++seq, s = suit, r = rank, v = values[s][r];
+  const ref = values[s][4].scale;
+  $("card").classList.add("loading");
+  try {
+    const d = await getJSON(`/api/render?suit=${s}&rank=${r}&scale=${v.scale}&dy=${v.dy}&ref=${ref}`);
+    if (my !== seq) return;               // a newer request is on its way
+    $("cardImg").src = "data:image/png;base64," + d.image;
+    const bad = d.window_px > 0 || d.bottom_px > 0;
+    status[s][r] = bad;
+    $("card").classList.toggle("bad", bad);
+    const items = d.warnings.length ? d.warnings : ["アーチ窓・下端 y=0.89 の制約を満たしています"];
+    $("warnings").innerHTML = items.map(w => `<li class="${d.warnings.length ? "" : "ok"}">${w}</li>`).join("");
+    buttons(); table();
+  } catch (e) {
+    if (my === seq) $("msg").textContent = "描画に失敗しました：" + e.message;
+  } finally {
+    if (my === seq) $("card").classList.remove("loading");
+  }
+}
+
+function set(key, raw, min, max) {
+  let x = parseFloat(raw);
+  if (Number.isNaN(x)) return;
+  x = Math.min(max, Math.max(min, x));
+  values[suit][rank][key] = Math.round(x * 100) / 100;
+  controls(); table(); dirty(); scheduleRender();
+}
+
+function select() {
+  remember(); buttons(); controls(); table();
+  $("warnings").innerHTML = ""; $("card").classList.remove("bad");
+  loadCups(); scheduleRender();
+}
+
+async function save() {
+  $("save").disabled = true;
+  try {
+    const d = await getJSON("/api/save", { method: "POST", headers: { "Content-Type": "application/json" },
+                                           body: JSON.stringify(values) });
+    saved = JSON.stringify(values);
+    $("msg").textContent = `${d.saved} に書き出しました（元のファイルは ${d.backup}）。`;
+  } catch (e) {
+    $("msg").textContent = "書き出しに失敗しました：" + e.message;
+  }
+  dirty();
+}
+
+$("scale").oninput = e => set("scale", e.target.value, 0.8, 3);
+$("scaleNum").onchange = e => set("scale", e.target.value, 0.8, 3);
+$("dy").oninput = e => set("dy", e.target.value, -0.3, 0.3);
+$("dyNum").onchange = e => set("dy", e.target.value, -0.3, 0.3);
+$("save").onclick = save;
+window.addEventListener("beforeunload", e => {
+  if (JSON.stringify(values) !== saved) { e.preventDefault(); e.returnValue = ""; }
+});
+
+(async () => {
+  restore();
+  try {
+    const st = await getJSON("/api/state");
+    values = {};
+    for (const s of Object.keys(SUITS)) {
+      values[s] = {};
+      for (const r of RANKS) values[s][r] = { scale: +st[s][r].scale, dy: +st[s][r].dy };
+    }
+    saved = JSON.stringify(values);
+    select();
+  } catch (e) {
+    $("msg").textContent = "サーバーに接続できません。python size_tuner.py を起動してください。（" + e.message + "）";
+  }
+})();
+</script>
+</body>
+</html>
