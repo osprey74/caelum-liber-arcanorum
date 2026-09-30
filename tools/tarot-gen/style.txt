@@ -1,0 +1,15 @@
+[STYLE — FIXED]
+Art Nouveau illustration in the manner of Alphonse Mucha.
+Elegant flowing contour lines of consistent medium weight; graceful figure with long, stylized swirling hair
+and softly draped flowing robes; a large circular halo disc behind the figure decorated with fine geometric
+and floral patterns; botanical ornaments (lilies, laurel, vines); flat decorative shading with subtle gradients;
+vintage color lithograph texture.
+Palette: deep midnight navy, antique gold, muted teal, soft ivory, occasional dusty rose. No neon, no saturated colors.
+Composition: vertical 2:3, single central figure, balanced and near-symmetrical, framed by an arch shape,
+serene expression, soft glowing light from above.
+Keep the main subject in the upper and central area; keep important elements away from the bottom 10%
+and the outer 5% on the left and right of the image (the edges will be cropped).
+Keep important elements away from the upper-left and upper-right corners; the top of the image will be cropped into a rounded arch.
+Keep identical style, line weight, lighting, and level of detail across the whole series.
+Exclude: text, letters, numbers, astrological glyphs, captions, card border, frame, watermark, signature,
+photorealism, 3D render.
