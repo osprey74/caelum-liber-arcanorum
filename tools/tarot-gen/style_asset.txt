@@ -1,0 +1,8 @@
+[STYLE — ASSET]
+Art Nouveau illustration in the manner of Alphonse Mucha.
+Elegant flowing contour lines of consistent medium weight; botanical ornaments (lilies, laurel, vines);
+flat decorative shading with subtle gradients; vintage color lithograph texture.
+Palette: deep midnight navy, antique gold, muted teal, soft ivory, occasional dusty rose. No neon, no saturated colors.
+Keep identical style, line weight, lighting, and level of detail across the whole series.
+Exclude: text, letters, numbers, astrological glyphs, captions, card border, frame, watermark, signature,
+photorealism, 3D render.

@@ -4,6 +4,8 @@ Usage examples:
   python composite.py                   # composite cards listed in selected.json
   python composite.py --contact-sheet   # also build out/contact_sheet.png from all raw variants
   python composite.py --contact-sheet --no-composite
+  python composite.py --contact-sheet --final --suit minor --no-composite   # final sheets per suit
+  python composite.py --assets-sheet --no-composite                           # symbol/background variants
 """
 
 from __future__ import annotations
@@ -20,11 +22,14 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 ROOT = Path(__file__).resolve().parent
 CARDS_PATH = ROOT / "cards.json"
+CARDS_MINOR_PATH = ROOT / "cards_minor.json"
 FRAME_PATH = ROOT / "refs" / "frame.png"
 SELECTED_PATH = ROOT / "selected.json"
 RAW_DIR = ROOT / "out" / "raw"
+ASSETS_DIR = ROOT / "assets"
 COMPOSITE_DIR = ROOT / "out" / "composite"
 CONTACT_SHEET_PATH = ROOT / "out" / "contact_sheet.png"
+ASSETS_SHEET_PATH = ROOT / "out" / "contact_sheet_assets.png"
 
 CENTER = (512, 768)
 COLOR_THRESHOLD = 30
@@ -35,6 +40,8 @@ EXPECTED_BBOX = (150, 247, 872, 1234)
 BBOX_TOLERANCE = 15
 
 RAW_NAME = re.compile(r"^(\d{2})_(.+)_([a-z])\.png$")
+ASSET_NAME = re.compile(r"^((?:symbol|bg)_[a-z_]+?|rosette)_([a-z])\.png$")
+SUITS = ("major", "wands", "cups", "swords", "pentacles")
 
 
 def detect_window(frame: Image.Image) -> np.ndarray:
@@ -96,20 +103,50 @@ def load_font(size: int) -> ImageFont.ImageFont:
     return ImageFont.load_default()
 
 
-def build_contact_sheet(thumb_w: int = 240) -> Path | None:
+def load_cards() -> dict[int, dict]:
+    """Major Arcana (cards.json) and, when present, Minor Arcana (cards_minor.json)."""
+    cards = {}
+    for path in (CARDS_PATH, CARDS_MINOR_PATH):
+        if path.exists():
+            cards.update({c["id"]: c for c in json.loads(path.read_text(encoding="utf-8"))})
+    return cards
+
+
+def card_label(card: dict | None, cid: int) -> str:
+    if card is None:
+        return f"{cid:02d}"
+    return f"{card['roman']} {card['name_en']}" if "roman" in card else card["name_en"]
+
+
+def suit_ids(cards: dict[int, dict], suit: str | None) -> set[int] | None:
+    """IDs of one suit ("major" for the Major Arcana); None means every card."""
+    if suit is None:
+        return None
+    return {cid for cid, c in cards.items() if c.get("suit", "major") == suit}
+
+
+def save_sheet(sheet: Image.Image, path: Path) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    sheet.save(path)
+    return path
+
+
+def build_contact_sheet(path: Path = CONTACT_SHEET_PATH, ids: set[int] | None = None,
+                        thumb_w: int = 240) -> Path | None:
+    """One row per card, every generated variant side by side (for selection)."""
     groups: dict[int, dict[str, Path]] = {}
     for p in sorted(RAW_DIR.glob("*.png")):
         m = RAW_NAME.match(p.name)
-        if m:
+        if m and (ids is None or int(m.group(1)) in ids):
             groups.setdefault(int(m.group(1)), {})[m.group(3)] = p
     if not groups:
         print("生成案がありません。")
         return None
 
-    names = {c["id"]: f"{c['roman']} {c['name_en']}" for c in json.loads(CARDS_PATH.read_text(encoding="utf-8"))}
+    cards = load_cards()
     cols = max(len(v) for v in groups.values())
     thumb_h = thumb_w * 3 // 2
-    label_h, pad, head_w = 28, 12, 200
+    label_h, pad, head_w = 28, 12, 220
     row_h = thumb_h + label_h + pad
     sheet = Image.new("RGB", (head_w + cols * (thumb_w + pad) + pad, pad + len(groups) * row_h), (24, 28, 40))
     draw = ImageDraw.Draw(sheet)
@@ -117,16 +154,85 @@ def build_contact_sheet(thumb_w: int = 240) -> Path | None:
 
     for r, cid in enumerate(sorted(groups)):
         y = pad + r * row_h
-        draw.text((pad, y + thumb_h // 2), names.get(cid, f"{cid:02d}"), fill=(230, 210, 160), font=font_big)
+        draw.text((pad, y + thumb_h // 2), card_label(cards.get(cid), cid), fill=(230, 210, 160), font=font_big)
         for c, letter in enumerate(sorted(groups[cid])):
             x = head_w + pad + c * (thumb_w + pad)
             with Image.open(groups[cid][letter]) as im:
                 sheet.paste(im.convert("RGB").resize((thumb_w, thumb_h), Image.LANCZOS), (x, y))
             draw.text((x + 4, y + thumb_h + 4), f"{cid:02d} {letter}", fill=(240, 240, 240), font=font)
+    return save_sheet(sheet, path)
 
-    CONTACT_SHEET_PATH.parent.mkdir(parents=True, exist_ok=True)
-    sheet.save(CONTACT_SHEET_PATH)
-    return CONTACT_SHEET_PATH
+
+def build_final_sheet(selected: dict[str, str], path: Path = CONTACT_SHEET_PATH, ids: set[int] | None = None,
+                      thumb_w: int = 240, cols: int = 6) -> Path | None:
+    """Grid of the selected (final) artwork only, one cell per card."""
+    cards = load_cards()
+    items = []
+    for key, letter in sorted(selected.items(), key=lambda kv: int(kv[0])):
+        cid = int(key)
+        if ids is not None and cid not in ids:
+            continue
+        card = cards.get(cid)
+        src = RAW_DIR / f"{cid:02d}_{card['slug']}_{letter}.png" if card else None
+        if src and src.exists():
+            items.append((f"{card_label(card, cid)} ({letter})", src))
+        else:
+            print(f"[NG] 決定稿がありません: {key} {letter}")
+    if not items:
+        print("決定稿がありません。")
+        return None
+
+    thumb_h = thumb_w * 3 // 2
+    label_h, pad = 30, 12
+    rows = -(-len(items) // cols)
+    sheet = Image.new("RGB", (pad + cols * (thumb_w + pad), pad + rows * (thumb_h + label_h + pad)), (24, 28, 40))
+    draw = ImageDraw.Draw(sheet)
+    font = load_font(17)
+    for i, (label, src) in enumerate(items):
+        x = pad + (i % cols) * (thumb_w + pad)
+        y = pad + (i // cols) * (thumb_h + label_h + pad)
+        with Image.open(src) as im:
+            sheet.paste(im.convert("RGB").resize((thumb_w, thumb_h), Image.LANCZOS), (x, y))
+        draw.text((x + 4, y + thumb_h + 6), label, fill=(230, 210, 160), font=font)
+    return save_sheet(sheet, path)
+
+
+def build_assets_sheet(path: Path = ASSETS_SHEET_PATH, thumb_w: int = 200) -> Path | None:
+    """One row per asset (symbol/background per suit), variants side by side on the window color."""
+    groups: dict[str, dict[str, Path]] = {}
+    for p in sorted(ASSETS_DIR.glob("*.png")):
+        m = ASSET_NAME.match(p.name)
+        if m:
+            groups.setdefault(m.group(1), {})[m.group(2)] = p
+    if not groups:
+        print("素材がありません。")
+        return None
+
+    order = [f"{k}_{s}" for s in SUITS[1:] for k in ("symbol", "bg")] + [
+        "symbol_swords_curved", "symbol_wands_long", "rosette"]
+    names = [n for n in order if n in groups] + sorted(n for n in groups if n not in order)
+    cols = max(len(v) for v in groups.values())
+    thumb_h = thumb_w * 3 // 2
+    label_h, pad, head_w = 28, 12, 200
+    row_h = thumb_h + label_h + pad
+    sheet = Image.new("RGB", (head_w + cols * (thumb_w + pad) + pad, pad + len(names) * row_h), (24, 28, 40))
+    draw = ImageDraw.Draw(sheet)
+    font, font_big = load_font(18), load_font(22)
+    backdrop = (17, 31, 47, 255)  # frame window color, to judge transparent symbols
+    for r, name in enumerate(names):
+        y = pad + r * row_h
+        draw.text((pad, y + thumb_h // 2), name, fill=(230, 210, 160), font=font_big)
+        for c, letter in enumerate(sorted(groups[name])):
+            x = head_w + pad + c * (thumb_w + pad)
+            with Image.open(groups[name][letter]) as im:
+                # Letterbox instead of stretching: some symbols come back nearly square.
+                s = min(thumb_w / im.width, thumb_h / im.height)
+                fitted = im.convert("RGBA").resize((round(im.width * s), round(im.height * s)), Image.LANCZOS)
+                tile = Image.new("RGBA", (thumb_w, thumb_h), backdrop)
+                tile.alpha_composite(fitted, ((thumb_w - fitted.width) // 2, (thumb_h - fitted.height) // 2))
+                sheet.paste(tile.convert("RGB"), (x, y))
+            draw.text((x + 4, y + thumb_h + 4), f"{name} {letter}", fill=(240, 240, 240), font=font)
+    return save_sheet(sheet, path)
 
 
 def main() -> None:
@@ -134,15 +240,38 @@ def main() -> None:
     for stream in (sys.stdout, sys.stderr):
         stream.reconfigure(encoding="utf-8", errors="replace")
     ap = argparse.ArgumentParser(description="Composite selected artwork into the tarot frame")
-    ap.add_argument("--contact-sheet", action="store_true", help="全生成案の一覧画像を出力する")
+    ap.add_argument("--contact-sheet", action="store_true", help="生成案の一覧画像を出力する")
+    ap.add_argument("--final", action="store_true",
+                    help="--contact-sheet と併用：selected.json の決定稿だけで一覧画像を作る")
+    ap.add_argument("--suit", choices=SUITS + ("minor", "all"),
+                    help="--contact-sheet と併用：区分別に out/contact_sheet_{suit}.png を出力する"
+                         "（minor＝小アルカナ4スート、all＝大アルカナを含む全5区分）")
+    ap.add_argument("--assets-sheet", action="store_true", help="素材の一覧画像 out/contact_sheet_assets.png を出力する")
     ap.add_argument("--no-composite", action="store_true", help="合成を行わない（一覧画像のみ）")
     ap.add_argument("--selected", type=Path, default=SELECTED_PATH, help="採用案リストのパス")
     args = ap.parse_args()
 
-    if args.contact_sheet:
-        path = build_contact_sheet()
+    if args.assets_sheet:
+        path = build_assets_sheet()
         if path:
-            print(f"一覧画像: {path.relative_to(ROOT).as_posix()}")
+            print(f"素材の一覧画像: {path.relative_to(ROOT).as_posix()}")
+    if args.contact_sheet:
+        cards = load_cards()
+        selected = json.loads(args.selected.read_text(encoding="utf-8")) if args.final else None
+        if args.suit is None:
+            targets = [(None, CONTACT_SHEET_PATH)]
+        else:
+            suits = {"all": SUITS, "minor": SUITS[1:]}.get(args.suit, (args.suit,))
+            targets = [(s, ROOT / "out" / f"contact_sheet_{s}.png") for s in suits]
+        for suit, out_path in targets:
+            ids = suit_ids(cards, suit)
+            if selected is not None:
+                cols = 7 if suit in SUITS[1:] else 6  # 14 cards per suit -> 7 x 2
+                path = build_final_sheet(selected, out_path, ids, cols=cols)
+            else:
+                path = build_contact_sheet(out_path, ids)
+            if path:
+                print(f"一覧画像: {path.relative_to(ROOT).as_posix()}")
     if args.no_composite:
         return
 
@@ -153,7 +282,7 @@ def main() -> None:
         print("selected.json に採用案が記入されていません。")
         return
 
-    cards = {c["id"]: c for c in json.loads(CARDS_PATH.read_text(encoding="utf-8"))}
+    cards = load_cards()
     frame = Image.open(FRAME_PATH).convert("RGB")
     mask = detect_window(frame)
     bbox = bbox_of(mask)

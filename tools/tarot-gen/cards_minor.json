@@ -1,0 +1,858 @@
+[
+ {
+  "id": 22,
+  "slug": "wands_01",
+  "suit": "wands",
+  "rank": 1,
+  "type": "ace",
+  "method": "ai",
+  "name_en": "Ace of Wands",
+  "name_ja": "ワンドのエース",
+  "subject": "a hand emerging from a cloud holding a sprouting wand with fresh leaves, only a hand from the cloud, no other human figure",
+  "symbols": "distant castle on a hill, falling leaves",
+  "astro_accent": "Fire element",
+  "glyph": "🜂"
+ },
+ {
+  "id": 23,
+  "slug": "wands_02",
+  "suit": "wands",
+  "rank": 2,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Two of Wands",
+  "name_ja": "ワンドの2",
+  "decan": {
+   "planet": "Mars",
+   "sign": "Aries",
+   "decan_no": 1
+  },
+  "glyph": "♂♈"
+ },
+ {
+  "id": 24,
+  "slug": "wands_03",
+  "suit": "wands",
+  "rank": 3,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Three of Wands",
+  "name_ja": "ワンドの3",
+  "decan": {
+   "planet": "Sun",
+   "sign": "Aries",
+   "decan_no": 2
+  },
+  "glyph": "☉♈"
+ },
+ {
+  "id": 25,
+  "slug": "wands_04",
+  "suit": "wands",
+  "rank": 4,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Four of Wands",
+  "name_ja": "ワンドの4",
+  "decan": {
+   "planet": "Venus",
+   "sign": "Aries",
+   "decan_no": 3
+  },
+  "glyph": "♀♈"
+ },
+ {
+  "id": 26,
+  "slug": "wands_05",
+  "suit": "wands",
+  "rank": 5,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Five of Wands",
+  "name_ja": "ワンドの5",
+  "decan": {
+   "planet": "Saturn",
+   "sign": "Leo",
+   "decan_no": 1
+  },
+  "glyph": "♄♌"
+ },
+ {
+  "id": 27,
+  "slug": "wands_06",
+  "suit": "wands",
+  "rank": 6,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Six of Wands",
+  "name_ja": "ワンドの6",
+  "decan": {
+   "planet": "Jupiter",
+   "sign": "Leo",
+   "decan_no": 2
+  },
+  "glyph": "♃♌"
+ },
+ {
+  "id": 28,
+  "slug": "wands_07",
+  "suit": "wands",
+  "rank": 7,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Seven of Wands",
+  "name_ja": "ワンドの7",
+  "decan": {
+   "planet": "Mars",
+   "sign": "Leo",
+   "decan_no": 3
+  },
+  "glyph": "♂♌"
+ },
+ {
+  "id": 29,
+  "slug": "wands_08",
+  "suit": "wands",
+  "rank": 8,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Eight of Wands",
+  "name_ja": "ワンドの8",
+  "decan": {
+   "planet": "Mercury",
+   "sign": "Sagittarius",
+   "decan_no": 1
+  },
+  "glyph": "☿♐"
+ },
+ {
+  "id": 30,
+  "slug": "wands_09",
+  "suit": "wands",
+  "rank": 9,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Nine of Wands",
+  "name_ja": "ワンドの9",
+  "decan": {
+   "planet": "Moon",
+   "sign": "Sagittarius",
+   "decan_no": 2
+  },
+  "glyph": "☽♐"
+ },
+ {
+  "id": 31,
+  "slug": "wands_10",
+  "suit": "wands",
+  "rank": 10,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Ten of Wands",
+  "name_ja": "ワンドの10",
+  "decan": {
+   "planet": "Saturn",
+   "sign": "Sagittarius",
+   "decan_no": 3
+  },
+  "glyph": "♄♐"
+ },
+ {
+  "id": 32,
+  "slug": "wands_page",
+  "suit": "wands",
+  "rank": "page",
+  "type": "court",
+  "method": "ai",
+  "name_en": "Page of Wands",
+  "name_ja": "ワンドのペイジ",
+  "subject": "young man, a messenger, in a desert landscape gazing at a sprouting wand",
+  "symbols": "distant pyramids, salamander motifs on the tunic",
+  "astro_accent": "Fire element",
+  "glyph": "🜂"
+ },
+ {
+  "id": 33,
+  "slug": "wands_knight",
+  "suit": "wands",
+  "rank": "knight",
+  "type": "court",
+  "method": "ai",
+  "name_en": "Knight of Wands",
+  "name_ja": "ワンドのナイト",
+  "subject": "armored man, a knight, riding a rearing horse holding a sprouting wand",
+  "symbols": "salamander motifs, desert and pyramids",
+  "astro_accent": "Fire element",
+  "glyph": "🜂"
+ },
+ {
+  "id": 34,
+  "slug": "wands_queen",
+  "suit": "wands",
+  "rank": "queen",
+  "type": "court",
+  "method": "ai",
+  "name_en": "Queen of Wands",
+  "name_ja": "ワンドのクイーン",
+  "subject": "crowned woman, a queen, seated on a throne holding a sprouting wand and a sunflower",
+  "symbols": "black cat at her feet, lions carved on the throne",
+  "astro_accent": "Fire element",
+  "glyph": "🜂"
+ },
+ {
+  "id": 35,
+  "slug": "wands_king",
+  "suit": "wands",
+  "rank": "king",
+  "type": "court",
+  "method": "ai",
+  "name_en": "King of Wands",
+  "name_ja": "ワンドのキング",
+  "subject": "crowned man, a king, seated on a throne holding a sprouting wand",
+  "symbols": "salamander and lion motifs on the throne",
+  "astro_accent": "Fire element",
+  "glyph": "🜂"
+ },
+ {
+  "id": 36,
+  "slug": "cups_01",
+  "suit": "cups",
+  "rank": 1,
+  "type": "ace",
+  "method": "ai",
+  "name_en": "Ace of Cups",
+  "name_ja": "カップのエース",
+  "subject": "a hand emerging from a cloud holding an ornate chalice overflowing with five streams of water, only a hand from the cloud, no other human figure",
+  "symbols": "descending dove, water lilies on a pond",
+  "astro_accent": "Water element",
+  "glyph": "🜄"
+ },
+ {
+  "id": 37,
+  "slug": "cups_02",
+  "suit": "cups",
+  "rank": 2,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Two of Cups",
+  "name_ja": "カップの2",
+  "decan": {
+   "planet": "Venus",
+   "sign": "Cancer",
+   "decan_no": 1
+  },
+  "glyph": "♀♋"
+ },
+ {
+  "id": 38,
+  "slug": "cups_03",
+  "suit": "cups",
+  "rank": 3,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Three of Cups",
+  "name_ja": "カップの3",
+  "decan": {
+   "planet": "Mercury",
+   "sign": "Cancer",
+   "decan_no": 2
+  },
+  "glyph": "☿♋"
+ },
+ {
+  "id": 39,
+  "slug": "cups_04",
+  "suit": "cups",
+  "rank": 4,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Four of Cups",
+  "name_ja": "カップの4",
+  "decan": {
+   "planet": "Moon",
+   "sign": "Cancer",
+   "decan_no": 3
+  },
+  "glyph": "☽♋"
+ },
+ {
+  "id": 40,
+  "slug": "cups_05",
+  "suit": "cups",
+  "rank": 5,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Five of Cups",
+  "name_ja": "カップの5",
+  "decan": {
+   "planet": "Mars",
+   "sign": "Scorpio",
+   "decan_no": 1
+  },
+  "glyph": "♂♏"
+ },
+ {
+  "id": 41,
+  "slug": "cups_06",
+  "suit": "cups",
+  "rank": 6,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Six of Cups",
+  "name_ja": "カップの6",
+  "decan": {
+   "planet": "Sun",
+   "sign": "Scorpio",
+   "decan_no": 2
+  },
+  "glyph": "☉♏"
+ },
+ {
+  "id": 42,
+  "slug": "cups_07",
+  "suit": "cups",
+  "rank": 7,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Seven of Cups",
+  "name_ja": "カップの7",
+  "decan": {
+   "planet": "Venus",
+   "sign": "Scorpio",
+   "decan_no": 3
+  },
+  "glyph": "♀♏"
+ },
+ {
+  "id": 43,
+  "slug": "cups_08",
+  "suit": "cups",
+  "rank": 8,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Eight of Cups",
+  "name_ja": "カップの8",
+  "decan": {
+   "planet": "Saturn",
+   "sign": "Pisces",
+   "decan_no": 1
+  },
+  "glyph": "♄♓"
+ },
+ {
+  "id": 44,
+  "slug": "cups_09",
+  "suit": "cups",
+  "rank": 9,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Nine of Cups",
+  "name_ja": "カップの9",
+  "decan": {
+   "planet": "Jupiter",
+   "sign": "Pisces",
+   "decan_no": 2
+  },
+  "glyph": "♃♓"
+ },
+ {
+  "id": 45,
+  "slug": "cups_10",
+  "suit": "cups",
+  "rank": 10,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Ten of Cups",
+  "name_ja": "カップの10",
+  "decan": {
+   "planet": "Mars",
+   "sign": "Pisces",
+   "decan_no": 3
+  },
+  "glyph": "♂♓"
+ },
+ {
+  "id": 46,
+  "slug": "cups_page",
+  "suit": "cups",
+  "rank": "page",
+  "type": "court",
+  "method": "ai",
+  "name_en": "Page of Cups",
+  "name_ja": "カップのペイジ",
+  "subject": "young man, a page, by the sea holding a cup with a small fish peeking out",
+  "symbols": "gentle waves, floral tunic",
+  "astro_accent": "Water element",
+  "glyph": "🜄"
+ },
+ {
+  "id": 47,
+  "slug": "cups_knight",
+  "suit": "cups",
+  "rank": "knight",
+  "type": "court",
+  "method": "ai",
+  "name_en": "Knight of Cups",
+  "name_ja": "カップのナイト",
+  "subject": "man, a knight, riding a calm white horse offering a cup",
+  "symbols": "winged helmet, a stream in a valley",
+  "astro_accent": "Water element",
+  "glyph": "🜄"
+ },
+ {
+  "id": 48,
+  "slug": "cups_queen",
+  "suit": "cups",
+  "rank": "queen",
+  "type": "court",
+  "method": "ai",
+  "name_en": "Queen of Cups",
+  "name_ja": "カップのクイーン",
+  "subject": "crowned woman, a queen, seated at the sea shore gazing at an ornate lidded cup",
+  "symbols": "throne with water nymph carvings, shells",
+  "astro_accent": "Water element",
+  "glyph": "🜄"
+ },
+ {
+  "id": 49,
+  "slug": "cups_king",
+  "suit": "cups",
+  "rank": "king",
+  "type": "court",
+  "method": "ai",
+  "name_en": "King of Cups",
+  "name_ja": "カップのキング",
+  "subject": "crowned man, a king, seated on a throne floating on the sea holding a cup",
+  "symbols": "fish pendant, ship and leaping fish in the distance",
+  "astro_accent": "Water element",
+  "glyph": "🜄"
+ },
+ {
+  "id": 50,
+  "slug": "swords_01",
+  "suit": "swords",
+  "rank": 1,
+  "type": "ace",
+  "method": "ai",
+  "name_en": "Ace of Swords",
+  "name_ja": "ソードのエース",
+  "subject": "a hand emerging from a cloud holding an upright sword, only a hand from the cloud, no other human figure",
+  "symbols": "golden crown on the blade tip with laurel and palm branches, distant mountains",
+  "astro_accent": "Air element",
+  "glyph": "🜁"
+ },
+ {
+  "id": 51,
+  "slug": "swords_02",
+  "suit": "swords",
+  "rank": 2,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Two of Swords",
+  "name_ja": "ソードの2",
+  "decan": {
+   "planet": "Moon",
+   "sign": "Libra",
+   "decan_no": 1
+  },
+  "glyph": "☽♎"
+ },
+ {
+  "id": 52,
+  "slug": "swords_03",
+  "suit": "swords",
+  "rank": 3,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Three of Swords",
+  "name_ja": "ソードの3",
+  "decan": {
+   "planet": "Saturn",
+   "sign": "Libra",
+   "decan_no": 2
+  },
+  "glyph": "♄♎"
+ },
+ {
+  "id": 53,
+  "slug": "swords_04",
+  "suit": "swords",
+  "rank": 4,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Four of Swords",
+  "name_ja": "ソードの4",
+  "decan": {
+   "planet": "Jupiter",
+   "sign": "Libra",
+   "decan_no": 3
+  },
+  "glyph": "♃♎"
+ },
+ {
+  "id": 54,
+  "slug": "swords_05",
+  "suit": "swords",
+  "rank": 5,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Five of Swords",
+  "name_ja": "ソードの5",
+  "decan": {
+   "planet": "Venus",
+   "sign": "Aquarius",
+   "decan_no": 1
+  },
+  "glyph": "♀♒"
+ },
+ {
+  "id": 55,
+  "slug": "swords_06",
+  "suit": "swords",
+  "rank": 6,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Six of Swords",
+  "name_ja": "ソードの6",
+  "decan": {
+   "planet": "Mercury",
+   "sign": "Aquarius",
+   "decan_no": 2
+  },
+  "glyph": "☿♒"
+ },
+ {
+  "id": 56,
+  "slug": "swords_07",
+  "suit": "swords",
+  "rank": 7,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Seven of Swords",
+  "name_ja": "ソードの7",
+  "decan": {
+   "planet": "Moon",
+   "sign": "Aquarius",
+   "decan_no": 3
+  },
+  "glyph": "☽♒"
+ },
+ {
+  "id": 57,
+  "slug": "swords_08",
+  "suit": "swords",
+  "rank": 8,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Eight of Swords",
+  "name_ja": "ソードの8",
+  "decan": {
+   "planet": "Jupiter",
+   "sign": "Gemini",
+   "decan_no": 1
+  },
+  "glyph": "♃♊"
+ },
+ {
+  "id": 58,
+  "slug": "swords_09",
+  "suit": "swords",
+  "rank": 9,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Nine of Swords",
+  "name_ja": "ソードの9",
+  "decan": {
+   "planet": "Mars",
+   "sign": "Gemini",
+   "decan_no": 2
+  },
+  "glyph": "♂♊"
+ },
+ {
+  "id": 59,
+  "slug": "swords_10",
+  "suit": "swords",
+  "rank": 10,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Ten of Swords",
+  "name_ja": "ソードの10",
+  "decan": {
+   "planet": "Sun",
+   "sign": "Gemini",
+   "decan_no": 3
+  },
+  "glyph": "☉♊"
+ },
+ {
+  "id": 60,
+  "slug": "swords_page",
+  "suit": "swords",
+  "rank": "page",
+  "type": "court",
+  "method": "ai",
+  "name_en": "Page of Swords",
+  "name_ja": "ソードのペイジ",
+  "subject": "young man, a page, standing on a hill holding a sword aloft",
+  "symbols": "wind-swept clouds and flying birds",
+  "astro_accent": "Air element",
+  "glyph": "🜁"
+ },
+ {
+  "id": 61,
+  "slug": "swords_knight",
+  "suit": "swords",
+  "rank": "knight",
+  "type": "court",
+  "method": "ai",
+  "name_en": "Knight of Swords",
+  "name_ja": "ソードのナイト",
+  "subject": "armored man, a knight, charging on a galloping horse with a raised sword",
+  "symbols": "storm clouds, trees bending in the wind",
+  "astro_accent": "Air element",
+  "glyph": "🜁"
+ },
+ {
+  "id": 62,
+  "slug": "swords_queen",
+  "suit": "swords",
+  "rank": "queen",
+  "type": "court",
+  "method": "ai",
+  "name_en": "Queen of Swords",
+  "name_ja": "ソードのクイーン",
+  "subject": "crowned woman, a queen, seated on a throne holding an upright sword with one hand raised",
+  "symbols": "clouds, butterfly carvings on the throne",
+  "astro_accent": "Air element",
+  "glyph": "🜁"
+ },
+ {
+  "id": 63,
+  "slug": "swords_king",
+  "suit": "swords",
+  "rank": "king",
+  "type": "court",
+  "method": "ai",
+  "name_en": "King of Swords",
+  "name_ja": "ソードのキング",
+  "subject": "crowned man, a king, seated on a throne holding an upright sword",
+  "symbols": "butterflies and crescent moons carved on the throne, clouds",
+  "astro_accent": "Air element",
+  "glyph": "🜁"
+ },
+ {
+  "id": 64,
+  "slug": "pentacles_01",
+  "suit": "pentacles",
+  "rank": 1,
+  "type": "ace",
+  "method": "ai",
+  "name_en": "Ace of Pentacles",
+  "name_ja": "ペンタクルのエース",
+  "subject": "a hand emerging from a cloud holding a large golden pentacle disc, only a hand from the cloud, no other human figure",
+  "symbols": "garden path through an arch of lilies, distant mountains",
+  "astro_accent": "Earth element",
+  "glyph": "🜃"
+ },
+ {
+  "id": 65,
+  "slug": "pentacles_02",
+  "suit": "pentacles",
+  "rank": 2,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Two of Pentacles",
+  "name_ja": "ペンタクルの2",
+  "decan": {
+   "planet": "Jupiter",
+   "sign": "Capricorn",
+   "decan_no": 1
+  },
+  "glyph": "♃♑"
+ },
+ {
+  "id": 66,
+  "slug": "pentacles_03",
+  "suit": "pentacles",
+  "rank": 3,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Three of Pentacles",
+  "name_ja": "ペンタクルの3",
+  "decan": {
+   "planet": "Mars",
+   "sign": "Capricorn",
+   "decan_no": 2
+  },
+  "glyph": "♂♑"
+ },
+ {
+  "id": 67,
+  "slug": "pentacles_04",
+  "suit": "pentacles",
+  "rank": 4,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Four of Pentacles",
+  "name_ja": "ペンタクルの4",
+  "decan": {
+   "planet": "Sun",
+   "sign": "Capricorn",
+   "decan_no": 3
+  },
+  "glyph": "☉♑"
+ },
+ {
+  "id": 68,
+  "slug": "pentacles_05",
+  "suit": "pentacles",
+  "rank": 5,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Five of Pentacles",
+  "name_ja": "ペンタクルの5",
+  "decan": {
+   "planet": "Mercury",
+   "sign": "Taurus",
+   "decan_no": 1
+  },
+  "glyph": "☿♉"
+ },
+ {
+  "id": 69,
+  "slug": "pentacles_06",
+  "suit": "pentacles",
+  "rank": 6,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Six of Pentacles",
+  "name_ja": "ペンタクルの6",
+  "decan": {
+   "planet": "Moon",
+   "sign": "Taurus",
+   "decan_no": 2
+  },
+  "glyph": "☽♉"
+ },
+ {
+  "id": 70,
+  "slug": "pentacles_07",
+  "suit": "pentacles",
+  "rank": 7,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Seven of Pentacles",
+  "name_ja": "ペンタクルの7",
+  "decan": {
+   "planet": "Saturn",
+   "sign": "Taurus",
+   "decan_no": 3
+  },
+  "glyph": "♄♉"
+ },
+ {
+  "id": 71,
+  "slug": "pentacles_08",
+  "suit": "pentacles",
+  "rank": 8,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Eight of Pentacles",
+  "name_ja": "ペンタクルの8",
+  "decan": {
+   "planet": "Sun",
+   "sign": "Virgo",
+   "decan_no": 1
+  },
+  "glyph": "☉♍"
+ },
+ {
+  "id": 72,
+  "slug": "pentacles_09",
+  "suit": "pentacles",
+  "rank": 9,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Nine of Pentacles",
+  "name_ja": "ペンタクルの9",
+  "decan": {
+   "planet": "Venus",
+   "sign": "Virgo",
+   "decan_no": 2
+  },
+  "glyph": "♀♍"
+ },
+ {
+  "id": 73,
+  "slug": "pentacles_10",
+  "suit": "pentacles",
+  "rank": 10,
+  "type": "pip",
+  "method": "layout",
+  "name_en": "Ten of Pentacles",
+  "name_ja": "ペンタクルの10",
+  "decan": {
+   "planet": "Mercury",
+   "sign": "Virgo",
+   "decan_no": 3
+  },
+  "glyph": "☿♍"
+ },
+ {
+  "id": 74,
+  "slug": "pentacles_page",
+  "suit": "pentacles",
+  "rank": "page",
+  "type": "court",
+  "method": "ai",
+  "name_en": "Page of Pentacles",
+  "name_ja": "ペンタクルのペイジ",
+  "subject": "young man, a page, standing in a green field gazing at a golden pentacle",
+  "symbols": "ploughed field, grove of trees",
+  "astro_accent": "Earth element",
+  "glyph": "🜃"
+ },
+ {
+  "id": 75,
+  "slug": "pentacles_knight",
+  "suit": "pentacles",
+  "rank": "knight",
+  "type": "court",
+  "method": "ai",
+  "name_en": "Knight of Pentacles",
+  "name_ja": "ペンタクルのナイト",
+  "subject": "man, a knight, riding a still dark horse holding a golden pentacle",
+  "symbols": "ploughed field, calm sky",
+  "astro_accent": "Earth element",
+  "glyph": "🜃"
+ },
+ {
+  "id": 76,
+  "slug": "pentacles_queen",
+  "suit": "pentacles",
+  "rank": "queen",
+  "type": "court",
+  "method": "ai",
+  "name_en": "Queen of Pentacles",
+  "name_ja": "ペンタクルのクイーン",
+  "subject": "crowned woman, a queen, seated in a flowering garden holding a golden pentacle on her lap",
+  "symbols": "rabbit at her feet, rose arbor",
+  "astro_accent": "Earth element",
+  "glyph": "🜃"
+ },
+ {
+  "id": 77,
+  "slug": "pentacles_king",
+  "suit": "pentacles",
+  "rank": "king",
+  "type": "court",
+  "method": "ai",
+  "name_en": "King of Pentacles",
+  "name_ja": "ペンタクルのキング",
+  "subject": "crowned man, a king, seated on a throne in a garden holding a golden pentacle",
+  "symbols": "grape vines, bull heads carved on the throne, castle behind",
+  "astro_accent": "Earth element",
+  "glyph": "🜃"
+ }
+]

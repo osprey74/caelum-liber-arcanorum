@@ -1,13 +1,16 @@
 """Tarot card artwork generator (Codex CLI built-in image_gen backend).
 
-Generates the central artwork for each Major Arcana card by driving the
-official OpenAI Codex CLI (`codex exec` + `$imagegen`) signed in with a
-ChatGPT account. No OPENAI_API_KEY is used or read.
+Generates the central artwork for each card by driving the official OpenAI
+Codex CLI (`codex exec` + `$imagegen`) signed in with a ChatGPT account.
+No OPENAI_API_KEY is used or read.
 
 Usage examples:
   python generate.py --dry-run
   python generate.py --only 0,17 --variants 2
   python generate.py --variants 2 --max-images 20 --exclude 17
+  python generate.py --cards cards_minor.json --variants 3     # aces and court cards (method "ai")
+  python generate.py --assets --variants 3                     # suit symbols and backgrounds for pip cards
+  python generate.py --assets --only wands,bg_cups
 """
 
 from __future__ import annotations
@@ -22,7 +25,7 @@ import tempfile
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
@@ -31,8 +34,10 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parent
 CARDS_PATH = ROOT / "cards.json"
 STYLE_PATH = ROOT / "style.txt"
+STYLE_ASSET_PATH = ROOT / "style_asset.txt"
 STYLE_REF = ROOT / "refs" / "style_ref.png"
 RAW_DIR = ROOT / "out" / "raw"
+ASSETS_DIR = ROOT / "assets"
 LOG_PATH = ROOT / "out" / "log.jsonl"
 FAILURES_PATH = ROOT / "out" / "failures.json"
 
@@ -54,8 +59,10 @@ FALLBACK_PATTERNS = re.compile(r"OPENAI_API_KEY", re.I)
 # Content moderation refusals: do not retry.
 REFUSAL_PATTERNS = re.compile(r"safety|content polic|moderation|can(no|')t (help|create|generate)|refus", re.I)
 
-IMAGE_PROMPT_TEMPLATE = """Use the attached image ONLY as a style reference (line, color, texture, level of detail).
-Do not copy its composition or subject.
+STYLE_REF_PREAMBLE = """Use the attached image ONLY as a style reference (line, color, texture, level of detail).
+Do not copy its composition or subject."""
+
+CARD_PROMPT_TEMPLATE = STYLE_REF_PREAMBLE + """
 
 {style}
 
@@ -65,36 +72,78 @@ Subject: {subject}
 Key symbols: {symbols}
 Astrological accent: {astro_accent}, woven subtly into the halo pattern as imagery, not as written symbols."""
 
+SUITS = ("wands", "cups", "swords", "pentacles")
+SUIT_SYMBOLS = {
+    "wands": "sturdy, thick wooden staff with a bold silhouette, small sprouting leaves and gold fittings",
+    "cups": "ornate golden chalice with Art Nouveau engraving",
+    "swords": "straight double-edged sword with an ornate gold hilt, point up",
+    "pentacles": "round golden disc engraved with a five-pointed star inside a circle, lily ornament on the rim",
+}
+# Extra transparent assets for the crossed wands/swords layouts (handoff-pips-crossed-layout.md).
+EXTRA_SYMBOLS = {
+    "symbol_swords_curved": "gently curved single-edged saber with a golden hilt, hilt at the bottom and point at the top, "
+                            "the blade bowing in a smooth arc toward the right side",
+    "symbol_wands_long": "long, slender, perfectly straight wooden staff, about twelve times as tall as it is wide, "
+                         "with small sprouting leaves at both ends and gold fittings",
+    "rosette": "small golden lily flower ornament, a compact round Art Nouveau rosette seen from the front",
+}
+SUIT_MOTIFS = {
+    "wands": "sunflowers, flames and salamander-like curls",
+    "cups": "water lilies and gentle waves",
+    "swords": "clouds, feathers and butterflies",
+    "pentacles": "grape vines, wheat and roses",
+}
+
+SYMBOL_PROMPT_TEMPLATE = STYLE_REF_PREAMBLE + """
+
+{style}
+
+[ASSET]
+A single {symbol} drawn as an isolated ornamental object, centered, upright, vertical orientation,
+occupying about 80% of the image height, on a plain transparent background.
+No figure, no hand, no scenery, no halo, no shadow on the background."""
+
+BACKGROUND_PROMPT_TEMPLATE = STYLE_REF_PREAMBLE + """
+
+{style}
+
+[ASSET]
+Vertical 2:3 decorative background panel for the {suit_title} suit: large circular halo disc with fine geometric
+and floral patterns, symmetrical botanical ornaments ({motif}), night sky in deep navy.
+The central area must stay calm and uncluttered (symbols will be placed on top later).
+Keep important ornaments away from the bottom 10% and from the upper-left and upper-right corners
+(the image will be cropped into a rounded arch).
+No figure, no objects in the center, no text."""
+
 CODEX_WRAPPER_TEMPLATE = """$imagegen Use the BUILT-IN image_gen tool (default mode). Do NOT use the CLI fallback or scripts/image_gen.py; no OPENAI_API_KEY is available and none is needed.
 The attached image (refs/style_ref.png) is a STYLE REFERENCE only.
-Make exactly ONE image_gen call, portrait 2:3 (1024x1536), with the image prompt below verbatim. Then copy the generated file from $CODEX_HOME/generated_images/... to {out} (relative to the current working directory; do not overwrite if it exists). Do not edit any other files. Reply only with the saved path and the image's pixel size.
+Make exactly ONE image_gen call, portrait 2:3 (1024x1536){transparent}, with the image prompt below verbatim. Then copy the generated file from $CODEX_HOME/generated_images/... to {out} (relative to the current working directory; do not overwrite if it exists). Do not edit any other files. Reply only with the saved path and the image's pixel size.
 
 --- IMAGE PROMPT (verbatim) ---
 {image_prompt}
 """
+TRANSPARENT_CLAUSE = ", with a genuinely TRANSPARENT background (preserve the alpha channel)"
 
 
 @dataclass
 class Job:
-    card: dict
-    variant: str
+    path: Path
+    image_prompt: str
+    transparent: bool = False
+    log_fields: dict = field(default_factory=dict)
 
     @property
     def filename(self) -> str:
-        return f"{self.card['id']:02d}_{self.card['slug']}_{self.variant}.png"
+        return self.path.name
 
     @property
-    def path(self) -> Path:
-        return RAW_DIR / self.filename
+    def rel(self) -> str:
+        return self.path.relative_to(ROOT).as_posix()
 
 
-def load_cards() -> list[dict]:
-    return json.loads(CARDS_PATH.read_text(encoding="utf-8"))
-
-
-def build_image_prompt(card: dict, style: str) -> str:
+def build_card_prompt(card: dict, style: str) -> str:
     # glyph is app-side metadata and must not be sent.
-    return IMAGE_PROMPT_TEMPLATE.format(
+    return CARD_PROMPT_TEMPLATE.format(
         style=style,
         name_en=card["name_en"],
         subject=card["subject"],
@@ -103,28 +152,77 @@ def build_image_prompt(card: dict, style: str) -> str:
     )
 
 
-def build_codex_prompt(job: Job, style: str) -> str:
-    rel_out = job.path.relative_to(ROOT).as_posix()
-    return CODEX_WRAPPER_TEMPLATE.format(out=rel_out, image_prompt=build_image_prompt(job.card, style))
+def build_codex_prompt(job: Job) -> str:
+    return CODEX_WRAPPER_TEMPLATE.format(
+        out=job.rel,
+        transparent=TRANSPARENT_CLAUSE if job.transparent else "",
+        image_prompt=job.image_prompt,
+    )
 
 
-def parse_id_list(value: str | None) -> set[int] | None:
+def parse_list(value: str | None) -> set[str] | None:
     if not value:
         return None
-    return {int(x) for x in value.split(",") if x.strip()}
+    return {x.strip() for x in value.split(",") if x.strip()}
 
 
-def plan_jobs(cards: list[dict], variants: int, only: set[int] | None, exclude: set[int] | None,
-              force: bool) -> tuple[list[Job], list[Job]]:
-    """Return (jobs_to_run, skipped). Ordered variant-major: all 'a' first, then 'b', ..."""
+def plan_card_jobs(cards: list[dict], style: str, variants: int, only: set[str] | None,
+                   exclude: set[str] | None) -> list[Job]:
+    """Ordered variant-major: all 'a' first, then 'b', ..."""
     targets = [c for c in cards
-               if (only is None or c["id"] in only) and (exclude is None or c["id"] not in exclude)]
-    jobs, skipped = [], []
+               if c.get("method", "ai") == "ai"
+               and (only is None or str(c["id"]) in only)
+               and (exclude is None or str(c["id"]) not in exclude)]
+    jobs = []
     for letter in VARIANT_LETTERS[:variants]:
         for card in targets:
-            job = Job(card, letter)
-            (skipped if job.path.exists() and not force else jobs).append(job)
-    return jobs, skipped
+            jobs.append(Job(
+                path=RAW_DIR / f"{card['id']:02d}_{card['slug']}_{letter}.png",
+                image_prompt=build_card_prompt(card, style),
+                log_fields={"card_id": card["id"], "slug": card["slug"], "variant": letter},
+            ))
+    return jobs
+
+
+def plan_asset_jobs(style_asset: str, variants: int, only: set[str] | None,
+                    exclude: set[str] | None) -> list[Job]:
+    """Suit symbols (transparent) and suit backgrounds for layout-based pip cards."""
+    def wanted(name: str, suit: str) -> bool:
+        if only is not None and name not in only and suit not in only:
+            return False
+        return exclude is None or (name not in exclude and suit not in exclude)
+
+    jobs = []
+    for letter in VARIANT_LETTERS[:variants]:
+        for suit in SUITS:
+            for kind in ("symbol", "bg"):
+                name = f"{kind}_{suit}"
+                if not wanted(name, suit):
+                    continue
+                if kind == "symbol":
+                    prompt = SYMBOL_PROMPT_TEMPLATE.format(style=style_asset, symbol=SUIT_SYMBOLS[suit])
+                else:
+                    prompt = BACKGROUND_PROMPT_TEMPLATE.format(
+                        style=style_asset, suit_title=suit.capitalize(), motif=SUIT_MOTIFS[suit])
+                jobs.append(Job(
+                    path=ASSETS_DIR / f"{name}_{letter}.png",
+                    image_prompt=prompt,
+                    transparent=kind == "symbol",
+                    log_fields={"asset": name, "variant": letter},
+                ))
+    for letter in VARIANT_LETTERS[:variants]:
+        for name, desc in EXTRA_SYMBOLS.items():
+            if only is None or name not in only:
+                continue  # extra assets are generated only when named explicitly
+            if exclude is not None and name in exclude:
+                continue
+            jobs.append(Job(
+                path=ASSETS_DIR / f"{name}_{letter}.png",
+                image_prompt=SYMBOL_PROMPT_TEMPLATE.format(style=style_asset, symbol=desc),
+                transparent=True,
+                log_fields={"asset": name, "variant": letter},
+            ))
+    return jobs
 
 
 _log_lock = threading.Lock()
@@ -169,17 +267,16 @@ def parse_tokens(output: str) -> int | None:
     return int(m.group(1).replace(",", "")) if m else None
 
 
-def generate_one(job: Job, codex: str, style: str, timeout: int, stop_event: threading.Event) -> dict:
-    prompt = build_codex_prompt(job, style)
+def generate_one(job: Job, codex: str, timeout: int, stop_event: threading.Event) -> dict:
+    prompt = build_codex_prompt(job)
     entry = {
-        "card_id": job.card["id"],
-        "slug": job.card["slug"],
-        "variant": job.variant,
+        **job.log_fields,
         "backend": "codex-cli built-in image_gen",
         "model": "gpt-image-2 (codex built-in)",
         "quality": "default (built-in; not selectable)",
+        "transparent": job.transparent,
         "prompt": prompt,
-        "output": job.path.relative_to(ROOT).as_posix(),
+        "output": job.rel,
     }
     error = None
     for attempt in range(1, MAX_RETRIES + 1):
@@ -199,8 +296,13 @@ def generate_one(job: Job, codex: str, style: str, timeout: int, stop_event: thr
         if created:
             with Image.open(job.path) as im:
                 entry["size"] = f"{im.width}x{im.height}"
+                warnings = []
                 if im.size != EXPECTED_SIZE:
-                    entry["warning"] = f"unexpected size {im.width}x{im.height}"
+                    warnings.append(f"unexpected size {im.width}x{im.height}")
+                if job.transparent and "A" not in im.getbands():
+                    warnings.append("no alpha channel")
+                if warnings:
+                    entry["warning"] = "; ".join(warnings)
             error = None
             break
 
@@ -236,9 +338,11 @@ def main() -> None:
         stream.reconfigure(encoding="utf-8", errors="replace")
     ap = argparse.ArgumentParser(description="Generate tarot artwork via Codex CLI built-in image_gen")
     ap.add_argument("--dry-run", action="store_true", help="プロンプトと枠消費の目安を表示するだけ")
-    ap.add_argument("--only", help="対象カードID（例：0,17,21）")
-    ap.add_argument("--exclude", help="除外するカードID（例：17）")
-    ap.add_argument("--variants", type=int, default=3, help="1枚あたりの案数（既定3）")
+    ap.add_argument("--cards", type=Path, default=CARDS_PATH, help="カード定義ファイル（既定 cards.json）")
+    ap.add_argument("--assets", action="store_true", help="数札用の素材（スート記号・背景）を生成する")
+    ap.add_argument("--only", help="対象（カードID、または素材名・スート名。例：0,17 / wands,bg_cups）")
+    ap.add_argument("--exclude", help="除外する対象（--only と同じ書式）")
+    ap.add_argument("--variants", type=int, default=3, help="1点あたりの案数（既定3）")
     ap.add_argument("--max-images", type=int, default=None, help="この実行で生成する最大枚数")
     ap.add_argument("--parallel", type=int, default=1, help=f"並列数（1〜{MAX_PARALLEL}、既定1）")
     ap.add_argument("--force", action="store_true", help="既存の案を上書き再生成する")
@@ -251,15 +355,26 @@ def main() -> None:
     if not 1 <= args.variants <= len(VARIANT_LETTERS):
         sys.exit(f"--variants は 1〜{len(VARIANT_LETTERS)} で指定してください。")
     parallel = max(1, min(args.parallel, MAX_PARALLEL))
+    only, exclude = parse_list(args.only), parse_list(args.exclude)
 
-    for p in (CARDS_PATH, STYLE_PATH, STYLE_REF):
+    if args.assets:
+        required = (STYLE_ASSET_PATH, STYLE_REF)
+    else:
+        required = (args.cards, STYLE_PATH, STYLE_REF)
+    for p in required:
         if not p.exists():
             sys.exit(f"必要なファイルがありません: {p}")
-    style = STYLE_PATH.read_text(encoding="utf-8").strip()
-    cards = load_cards()
 
-    jobs, skipped = plan_jobs(cards, args.variants, parse_id_list(args.only),
-                              parse_id_list(args.exclude), args.force)
+    if args.assets:
+        style_asset = STYLE_ASSET_PATH.read_text(encoding="utf-8").strip()
+        planned = plan_asset_jobs(style_asset, args.variants, only, exclude)
+    else:
+        style = STYLE_PATH.read_text(encoding="utf-8").strip()
+        cards = json.loads(args.cards.read_text(encoding="utf-8"))
+        planned = plan_card_jobs(cards, style, args.variants, only, exclude)
+
+    skipped = [j for j in planned if j.path.exists() and not args.force]
+    jobs = [j for j in planned if j not in skipped]
     if args.max_images is not None:
         jobs = jobs[: args.max_images]
 
@@ -270,9 +385,13 @@ def main() -> None:
         print("対象: " + ", ".join(j.filename for j in jobs))
 
     if args.dry_run:
+        shown = set()
         for job in jobs:
-            print(f"\n===== {job.filename} =====")
-            print(build_image_prompt(job.card, style))
+            if job.image_prompt in shown:  # variants share one prompt
+                continue
+            shown.add(job.image_prompt)
+            print(f"\n===== {job.filename}{'（透過）' if job.transparent else ''} =====")
+            print(job.image_prompt)
         return
     if not jobs:
         print("生成対象がありません。")
@@ -283,32 +402,32 @@ def main() -> None:
             return
 
     codex = find_codex()
-    RAW_DIR.mkdir(parents=True, exist_ok=True)
-    if args.force:
-        for job in jobs:
+    for job in jobs:
+        job.path.parent.mkdir(parents=True, exist_ok=True)
+        if args.force:
             job.path.unlink(missing_ok=True)
 
     stop_event = threading.Event()
     results = []
     with ThreadPoolExecutor(max_workers=parallel) as pool:
-        futures = {pool.submit(generate_one, j, codex, style, args.timeout, stop_event): j for j in jobs}
+        futures = {pool.submit(generate_one, j, codex, args.timeout, stop_event): j for j in jobs}
         for fut in as_completed(futures):
             job = futures[fut]
             try:
                 r = fut.result()
             except Exception as e:  # keep going on unexpected errors
-                r = {"card_id": job.card["id"], "slug": job.card["slug"], "variant": job.variant,
-                     "output": job.path.relative_to(ROOT).as_posix(), "success": False,
-                     "error": f"exception: {e!r}",
+                r = {**job.log_fields, "output": job.rel, "success": False, "error": f"exception: {e!r}",
                      "timestamp": datetime.now(JST).isoformat(timespec="seconds")}
                 append_log(r)
             results.append(r)
             mark = "OK " if r["success"] else "NG "
             detail = r.get("size", "") if r["success"] else r.get("error", "")
+            if r.get("warning"):
+                detail += f" 警告: {r['warning']}"
             print(f"[{mark}] {job.filename} {detail} ({r.get('elapsed_sec', '-')}s)", flush=True)
 
-    failures = [{k: r.get(k) for k in ("card_id", "slug", "variant", "output", "error", "timestamp")}
-                for r in results if not r["success"]]
+    keys = ("card_id", "slug", "asset", "variant", "output", "error", "timestamp")
+    failures = [{k: r[k] for k in keys if k in r} for r in results if not r["success"]]
     FAILURES_PATH.write_text(json.dumps(failures, ensure_ascii=False, indent=2), encoding="utf-8")
     ok = sum(r["success"] for r in results)
     print(f"\n完了: 成功 {ok} / 失敗 {len(failures)}（{FAILURES_PATH.relative_to(ROOT).as_posix()}）")

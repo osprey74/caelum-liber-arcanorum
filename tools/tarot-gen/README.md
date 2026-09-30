@@ -17,13 +17,20 @@ pip install pillow numpy opencv-python
 ## ファイル構成
 
 | パス | 内容 |
-|---|---|
+| --- | --- |
 | `cards.json` | 22枚のカード定義（正本）。人物の性別はライダー・ウェイト・スミス版の伝承に従う |
 | `style.txt` | 固定のスタイル指定（変更する場合は事前に合意すること） |
 | `refs/style_ref.png` | 画風の参照画像 |
 | `refs/frame.png` | 共通フレーム |
 | `refs/backimage.png` | カード裏面 |
-| `selected.json` | 採用案のリスト（手で記入する） |
+| `refs/sword_rough.png` | ソード数札の配置のラフ（1〜10） |
+| `cards_minor.json` | 小アルカナ56枚のカード定義 |
+| `style_asset.txt` | 数札用素材のスタイル指定（style.txt から人物・光輪・構図の行を除いたもの） |
+| `selected.json` | 採用案のリスト（手で記入する。数札は `layout.py` が自動で記入） |
+| `selected_assets.json` | 数札用素材の採用案 |
+| `layout_config.json` | 数札の配置の設定（光背の円の計測値、ソードの許容リストなど） |
+| `swords_traced.json` | ラフからトレースしたソードの剣の座標 |
+| `assets/` | 数札用の素材（スート記号・背景・花飾りなど） |
 | `out/raw/` | 生成案（`{id:02d}_{slug}_{a,b,c}.png`） |
 | `out/composite/` | 合成済みのカード（`{id:02d}_{slug}.png`） |
 | `out/log.jsonl` | 1案ごとの生成ログ |
@@ -41,7 +48,7 @@ python generate.py --variants 2 --max-images 20      # この実行では最大2
 ```
 
 | オプション | 内容 |
-|---|---|
+| --- | --- |
 | `--dry-run` | Codex を呼ばず、プロンプトと枠消費の目安だけを表示する |
 | `--only` / `--exclude` | 対象にする／除外するカードID（カンマ区切り） |
 | `--variants N` | 1枚あたりの案数（既定3） |
@@ -77,6 +84,7 @@ python generate.py --variants 2 --max-images 20      # この実行では最大2
 3. `selected.json` に採用案を記入します。例：`{"0": "b", "17": "a"}`
 4. 不採用のカードは `--only` で再生成します。必要に応じて `cards.json` のモチーフを調整します。
 5. `python composite.py` を実行すると、`selected.json` に記入したカードだけを合成します。
+6. `python composite.py --contact-sheet --final --no-composite` を実行すると、決定稿だけを並べた一覧画像を `out/contact_sheet.png` に出力します（全案の一覧を上書きします）。
 
 合成は次の手順で行います。
 
@@ -88,3 +96,80 @@ python generate.py --variants 2 --max-images 20      # この実行では最大2
 窓の位置が想定（x=150〜872、y=247〜1234）から大きくずれた場合は、警告を表示します。
 
 カード名・番号・天体記号は画像に重ねません。アプリ側で描画します。
+
+## 小アルカナ（56枚）
+
+仕様は `tarot-gen-minor-addendum.md`、カード定義は `cards_minor.json`（ID 22〜77）です。
+
+| 区分 | 枚数 | 作り方 |
+| --- | --- | --- |
+| エース・人物札 | 20 | `generate.py --cards cards_minor.json`（大アルカナと同じ手順） |
+| 数札（2〜10） | 36 | 素材を AI で生成し、`layout.py` で記号を配置 |
+
+### 1. エース・人物札
+
+```sh
+python generate.py --cards cards_minor.json --variants 3
+```
+
+`method` が `ai` のカードだけが対象になります。
+
+### 2. 数札用の素材（スート記号・背景、各4点）
+
+```sh
+python generate.py --assets --variants 3                 # 8点×3案
+python generate.py --assets --only wands,bg_cups         # スート名や素材名で絞り込む
+python composite.py --assets-sheet --no-composite        # 素材の一覧 out/contact_sheet_assets.png
+```
+
+- 出力先は `assets/symbol_{suit}_{案}.png`（背景透過）と `assets/bg_{suit}_{案}.png` です。
+- 素材のプロンプトには、style.txt から人物・光輪・構図の行を除いた `style_asset.txt` を使います。
+- Codex 標準の画像生成は透過 PNG を出力できます（2026-09-30 に実測で確認済み）。
+- 採用案は `selected_assets.json` に記入します。例：`{"symbol_wands": "a", "bg_wands": "b", ...}`
+
+### 3. 数札の配置（layout.py）
+
+```sh
+python layout.py                 # 36枚すべて
+python layout.py --only cups     # スート名またはカードIDで絞り込む
+python test_layout.py            # 記号の個数・重なりの自動テスト
+```
+
+- 出力先は `out/raw/{id:02d}_{slug}_a.png` で、`selected.json` に `a` として自動で記入されます。
+- スートごとの配置方式は `layout.py` の `SUIT_CONFIG` と `layout_config.json` で決まります。
+- どのスートも、記号の下端が y=0.89 を超える場合と、合成後にフレームで隠れる部分がある場合は、警告を表示します。
+
+#### カップ・ペンタクル（格子配置）
+
+- 記号の位置・大きさは、追補の §3 に従います。重なる場合は、自動で5%ずつ縮小します。
+- 記号の周囲の背景を柔らかく暗くします（暗い後光、濃さ85%）。
+
+#### ワンド（斜め格子、`crossed.py`、`handoff-pips-crossed-layout.md`）
+
+- 光背の円（`layout_config.json` の `wands.circle`：中心 (512, 611)、R=350）の内側に、±20°の杖を 0.30R 間隔で交差させます。奇数枚は中央に縦の杖を加えます。
+- 交点に花飾り（0.10R）を置き、杖は明度 +15%・彩度 +10% に補正します。配置可能領域は 0.90R です。
+
+#### ソード（ラフのトレース、`handoff-swords-trace.md`）
+
+- 剣の位置は、総司のラフ `refs/sword_rough.png` から剣1本ずつの柄頭と切っ先をトレースした `swords_traced.json` に従います。
+  - 座標は光背の円（`swords.circle`：中心 (512, 469)、R=322）の中心を原点、R を単位とし、y は下向きです。
+  - 描画順はファイルの並び順です。剣どうし・ユニットどうしの重なりは意図したものです。
+- 剣の素材は、切っ先・柄頭・刃の中心線・鍔の上端を計測して位置を合わせます（画像の中心は使いません）。
+- 剣の太さ：剣全体を長さに合わせて縦横同率に縮めたうえで、**刃（切っ先〜鍔の上端）だけを横方向に太くし**、4の剣の刃の幅にそろえます。柄は変形させません。
+  - 刃の太さは最大 +100% です。太くした刃の幅が鍔の幅の70%を超えると警告します。
+- 配置可能領域は 0.96R で、縮小は行いません。0.96R を超える剣は警告しますが、`swords.area_allow` に記載した剣（6・7 の剣4と剣5、10 の剣8と剣9）は許容します。
+
+`swords_traced.json` の作り方：
+
+1. `python trace_swords.py` で自動の下書きを作ります。ラフのカードを画像照合で出力と同じ座標に重ね（`fit_rough.py`）、剣を1本ずつ動かしてラフに重ねます。
+2. `python trace_grid.py 6 t` のように、0.1R の目盛りとトレース線を重ねたラフの拡大画像（`out/review/trace_grid_*.png`）を作り、ずれている座標を手で直します（2026-09-30 の作成時は、4〜10 を手で読み取りました）。
+3. `python trace_swords.py --overlay-only` で、ラフに赤い線を重ねた `out/review/swords_trace_overlay.png` を出力し、全カードで重なっていることを目で確認します。
+4. `python layout.py --only swords --out-dir out/review/rough` と `python review_rough.py` で、ラフと出力の比較画像 `out/review/swords_rough_compare.png` を作って確認します。
+
+### 4. 一覧と合成
+
+```sh
+python composite.py --contact-sheet --suit minor --no-composite           # スート別の全案一覧
+python composite.py --contact-sheet --final --suit minor --no-composite   # スート別の決定稿一覧（各14枚）
+python composite.py                                                       # selected.json の全カードを合成
+```

@@ -1,0 +1,36 @@
+{
+  "wands": {
+    "circle": {
+      "cx": 512,
+      "cy": 611,
+      "r": 350,
+      "source": "bg_wands_c",
+      "note": "Hough 検出 r=364 は内側の帯に掛かるため目視で 350 に調整"
+    }
+  },
+  "swords": {
+    "circle": {
+      "cx": 512,
+      "cy": 469,
+      "r": 322,
+      "source": "bg_swords_b",
+      "note": "Hough 検出値"
+    },
+    "traced": "swords_traced.json",
+    "area_allow": {
+      "6": [
+        4,
+        5
+      ],
+      "7": [
+        4,
+        5
+      ],
+      "10": [
+        8,
+        9
+      ]
+    },
+    "area_allow_note": "0.96R を超えることを許容する剣の番号（swords_traced.json の順、1始まり）。刃だけを太くする方式での結果：6・7 は剣5（84px）と剣4（1px）、10 は剣8（317px）と剣9（412px）。2026-10-01"
+  }
+}
