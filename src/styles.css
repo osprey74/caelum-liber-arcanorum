@@ -2,8 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Card-name font Shippori Mincho SemiBold (OFL 1.1, license in assets/fonts/), subset by tools/fonts/build_fonts.py. Bundled so they work offline. */
+@font-face {
+  font-family: "Shippori Mincho";
+  src: url("./assets/fonts/shippori-mincho-semibold.woff2") format("woff2");
+  font-weight: 600;
+  font-display: block;
+}
+
+
+
 html,
 body,
 #root {
   height: 100%;
+}
+
+body {
+  background: #111f2f;
+  color: #efe6d2;
 }

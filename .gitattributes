@@ -6,3 +6,5 @@ tools/tarot-gen/final/*.png filter=lfs diff=lfs merge=lfs -text
 tools/tarot-gen/designs/*.png filter=lfs diff=lfs merge=lfs -text
 tools/tarot-gen/refs/frame.png filter=lfs diff=lfs merge=lfs -text
 tools/tarot-gen/refs/backimage_sym.png filter=lfs diff=lfs merge=lfs -text
+# Font sources (tools/fonts/build_fonts.py subsets them into src/assets/fonts)
+tools/fonts/*.ttf filter=lfs diff=lfs merge=lfs -text

@@ -1,0 +1,118 @@
+.tarot-card {
+  --gold: #e2c886;
+  --gold-shadow: rgba(10, 18, 30, 0.85);
+  --plate-font: "Shippori Mincho", serif;
+  --flip-duration: 0.6s;
+  position: relative;
+  display: block;
+  aspect-ratio: 2 / 3;
+  padding: 0;
+  border: 0;
+  background: none;
+  perspective: 1600px;
+  container-type: inline-size;
+  cursor: default;
+}
+
+button.tarot-card {
+  cursor: pointer;
+}
+
+button.tarot-card:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 4px;
+  border-radius: 4%;
+}
+
+/* Reversed position: everything on the card, overlays included, turns together. */
+.tarot-card__turn {
+  position: absolute;
+  inset: 0;
+  transition: transform var(--flip-duration) ease;
+}
+
+.tarot-card__turn.is-reversed {
+  transform: rotate(180deg);
+}
+
+/* Flip on the vertical axis: the back is shown until is-face-up is set. */
+.tarot-card__flip {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform: rotateY(180deg);
+  transition: transform var(--flip-duration) cubic-bezier(0.4, 0.1, 0.25, 1);
+}
+
+.tarot-card__flip.is-face-up {
+  transform: rotateY(0deg);
+}
+
+.tarot-card__side {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: 2.4cqw;
+  overflow: hidden;
+  box-shadow: 0 1.5cqw 4cqw rgba(0, 0, 0, 0.45);
+}
+
+.tarot-card__back {
+  transform: rotateY(180deg);
+}
+
+.tarot-card__side img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+}
+
+.tarot-card__medallion {
+  position: absolute;
+  left: var(--medallion-x);
+  top: var(--medallion-y);
+  width: var(--medallion-d);
+  height: var(--medallion-d);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  color: var(--gold);
+  filter: drop-shadow(0 0 0.5cqw var(--gold-shadow));
+}
+
+/* --glyph-scale is 1.15 for thumbnails (set by TarotCard). */
+.tarot-card__glyph {
+  width: calc(58% * var(--glyph-scale, 1));
+  height: calc(58% * var(--glyph-scale, 1));
+}
+
+.tarot-card__medallion.count-2 .tarot-card__glyph {
+  width: calc(42% * var(--glyph-scale, 1));
+  height: calc(42% * var(--glyph-scale, 1));
+}
+
+.tarot-card__plate {
+  position: absolute;
+  left: var(--plate-x);
+  top: var(--plate-y);
+  width: var(--plate-w);
+  height: var(--plate-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold);
+  font-family: var(--plate-font);
+  font-size: var(--plate-font-size);
+  letter-spacing: 0.06em;
+  line-height: 1;
+  white-space: nowrap;
+  text-shadow: 0 0 0.6cqw var(--gold-shadow);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tarot-card {
+    --flip-duration: 0s;
+  }
+}
