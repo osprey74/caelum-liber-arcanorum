@@ -3,6 +3,7 @@ import { CARDS, plateName } from "../data/cards";
 import { spreadOf } from "../data/readings";
 import { deleteReading, loadHistory } from "../lib/storage";
 import type { Reading } from "../types/reading";
+import { Icon } from "./Icon";
 import { TarotCard } from "./TarotCard";
 
 interface HistoryScreenProps {
@@ -22,11 +23,12 @@ export function HistoryScreen({ onOpen, onBack }: HistoryScreenProps) {
   return (
     <div className="mx-auto max-w-5xl px-6 py-8">
       <header className="mb-6 flex items-center gap-4">
-        <button type="button" onClick={onBack} className="rounded border border-gold/40 px-3 py-1 text-sm hover:bg-gold/10">
-          ← 戻る
+        <button type="button" onClick={onBack} className="flex h-11 items-center gap-1.5 rounded-full border border-gold/45 px-[18px] text-sm hover:bg-gold/10">
+          <Icon name="back" className="h-4 w-4 text-gold" strokeWidth={2} />
+          ホーム
         </button>
-        <h1 className="text-xl text-gold">占いの履歴</h1>
-        <span className="text-sm text-ivory/60">{history.length}件</span>
+        <h1 className="font-display text-xl font-semibold tracking-[0.08em] text-gold">占いの履歴</h1>
+        <span className="text-sm text-muted">{history.length}件</span>
       </header>
 
       {history.length === 0 && <p className="text-ivory/70">まだ履歴はありません。</p>}
@@ -35,7 +37,7 @@ export function HistoryScreen({ onOpen, onBack }: HistoryScreenProps) {
         {history.map((r) => {
           const spread = spreadOf(r.spreadId);
           return (
-            <li key={r.id} className="flex items-center gap-4 rounded-lg border border-gold/20 p-3 hover:border-gold/50">
+            <li key={r.id} className="flex items-center gap-4 rounded-2xl border border-gold/25 bg-panel p-3 pr-4 hover:border-gold/60">
               <button type="button" onClick={() => onOpen(r)} className="flex min-w-0 flex-1 items-center gap-4 text-left">
                 <div className="flex shrink-0 gap-1">
                   {r.cards.slice(0, 5).map((d, i) => (
@@ -59,7 +61,7 @@ export function HistoryScreen({ onOpen, onBack }: HistoryScreenProps) {
               <button
                 type="button"
                 onClick={() => remove(r.id)}
-                className="shrink-0 rounded border border-gold/30 px-2 py-1 text-xs text-ivory/70 hover:bg-gold/10"
+                className="h-9 shrink-0 rounded-full border border-gold/30 px-4 text-xs text-soft hover:bg-gold/10"
               >
                 削除
               </button>

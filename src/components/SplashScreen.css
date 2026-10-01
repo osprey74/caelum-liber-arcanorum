@@ -1,0 +1,152 @@
+/* Startup screen (design: Claude Design canvas "Liber Arcanorum UI", board 起動画面). */
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 36px;
+  background: #111f2f;
+  color: #efe6d2;
+  transition: opacity 450ms ease;
+  cursor: default;
+}
+.splash--leaving {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* The rings are centred on the card: the stage is the card's box. */
+.splash__stage {
+  position: relative;
+  width: 196px;
+  height: 294px;
+  /* the rings and ticks reach 71px below the card: keep the title clear of them */
+  margin-bottom: 44px;
+}
+.splash__ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 420px;
+  height: 420px;
+  margin: -210px 0 0 -210px;
+  border-radius: 50%;
+  border: 1px solid rgba(201, 169, 97, 0.32);
+  animation: splash-turn 40s linear infinite;
+}
+.splash__ring--inner {
+  width: 340px;
+  height: 340px;
+  margin: -170px 0 0 -170px;
+  border: 1px dashed rgba(201, 169, 97, 0.22);
+  animation-direction: reverse;
+}
+.splash__tick {
+  position: absolute;
+  background: #c9a961;
+}
+.splash__tick--top,
+.splash__tick--bottom {
+  left: calc(50% - 1px);
+  width: 2px;
+  height: 16px;
+}
+.splash__tick--top {
+  top: calc(50% - 218px);
+}
+.splash__tick--bottom {
+  top: calc(50% + 202px);
+}
+.splash__tick--left,
+.splash__tick--right {
+  top: calc(50% - 1px);
+  width: 16px;
+  height: 2px;
+}
+.splash__tick--left {
+  left: calc(50% - 218px);
+}
+.splash__tick--right {
+  left: calc(50% + 202px);
+}
+.splash__card {
+  position: relative;
+  display: block;
+  width: 196px;
+  height: 294px;
+  border-radius: 10px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(201, 169, 97, 0.25);
+  animation: splash-rise 900ms ease-out both;
+}
+
+.splash__title {
+  margin: 0;
+  padding-left: 0.3em; /* balances the trailing letter-spacing */
+  font-size: 44px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  color: #c9a961;
+  animation: splash-fade 900ms 200ms ease-out both;
+}
+.splash__subtitle {
+  margin: 0;
+  padding-left: 0.6em;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.6em;
+  color: #d9d1bd;
+  animation: splash-fade 900ms 350ms ease-out both;
+}
+
+.splash__progress {
+  width: 180px;
+  height: 2px;
+  background: rgba(239, 230, 210, 0.16);
+  overflow: hidden;
+}
+.splash__progress-bar {
+  height: 100%;
+  background: #c9a961;
+  animation: splash-progress 1600ms ease-in-out both;
+}
+
+@keyframes splash-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes splash-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+@keyframes splash-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes splash-progress {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash__ring,
+  .splash__card,
+  .splash__title,
+  .splash__subtitle,
+  .splash__progress-bar {
+    animation: none;
+  }
+  .splash__progress-bar {
+    width: 100%;
+  }
+}

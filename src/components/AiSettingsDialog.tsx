@@ -45,8 +45,8 @@ export function AiSettingsDialog({ onClose }: AiSettingsDialogProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-6" role="dialog" aria-modal="true" aria-label="AIの設定">
-      <div className="w-full max-w-lg rounded-xl border border-gold/30 bg-night p-6 shadow-2xl">
-        <h2 className="text-xl text-gold">AIによる解釈の設定</h2>
+      <div className="w-full max-w-lg rounded-2xl border border-gold/30 bg-panel p-7 shadow-2xl">
+        <h2 className="font-display text-xl font-semibold tracking-[0.06em] text-gold">AIによる解釈の設定</h2>
 
         <section className="mt-5">
           <h3 className="text-sm text-ivory/80">Anthropic APIキー</h3>

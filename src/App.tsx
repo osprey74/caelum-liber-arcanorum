@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Gallery } from "./components/Gallery";
 import { HistoryScreen } from "./components/HistoryScreen";
 import { HomeScreen } from "./components/HomeScreen";
 import { ReadingScreen } from "./components/ReadingScreen";
+import { SplashScreen } from "./components/SplashScreen";
 import { SupportScreen } from "./components/SupportScreen";
 import { spreadOf } from "./data/readings";
 import { needsSupport } from "./lib/crisis";
@@ -51,6 +52,12 @@ const START_DETAIL = Number(new URLSearchParams(window.location.search).get("det
 function App() {
   const [screen, setScreen] = useState<Screen>(START);
   const [settings, setSettings] = useState<ReadingSettings>(loadSettings);
+  // The startup screen shows on a normal launch only (not on the development entry points).
+  const [splash, setSplash] = useState(
+    (START.name === "home" && !new URLSearchParams(window.location.search).has("nosplash")) ||
+      new URLSearchParams(window.location.search).has("splash"),
+  );
+  const endSplash = useCallback(() => setSplash(false), []);
 
   setSoundEnabled(settings.sound !== false);
 
@@ -77,6 +84,8 @@ function App() {
     saveReading(reading);
     setScreen({ name: "reading", reading, fromHistory: false });
   };
+
+  if (splash) return <SplashScreen onDone={endSplash} />;
 
   switch (screen.name) {
     case "gallery":

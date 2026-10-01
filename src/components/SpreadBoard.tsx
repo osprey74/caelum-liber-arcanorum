@@ -5,7 +5,7 @@ import type { Spread } from "../types/reading";
 import { TarotCard } from "./TarotCard";
 
 const CARD_H = 1.5; // card height in card widths (2:3)
-const LABEL_H = 0.28; // room for the position label under each card, in card widths
+const LABEL_H = 0.42; // room for the caption under each card (position, then card name), in card widths
 const MAX_CARD_PX = 260;
 
 interface SpreadBoardProps {
@@ -29,6 +29,27 @@ function bounds(spread: Spread) {
     y1 = Math.max(y1, p.y - CARD_H / 2 + h);
   }
   return { x0, y0, w: x1 - x0, h: y1 - y0 };
+}
+
+/** Card box of a position in card widths (a card lying sideways is 1.5 wide and 1 tall). */
+function box(p: Spread["positions"][number]) {
+  const sideways = (p.rotate ?? 0) % 180 !== 0;
+  return { w: sideways ? CARD_H : 1, h: sideways ? 1 : CARD_H };
+}
+
+/**
+ * True when no other card lies in the caption area under this card (as wide as the label row, 2.2 card widths,
+ * and LABEL_H tall), so the card name can go under the position without running into a neighbour.
+ */
+function captionIsClear(spread: Spread, i: number): boolean {
+  const p = spread.positions[i];
+  const top = p.y + box(p).h / 2;
+  const [x0, x1, y0, y1] = [p.x - 1.1, p.x + 1.1, top, top + LABEL_H];
+  return spread.positions.every((q) => {
+    if (q === p) return true;
+    const b = box(q);
+    return q.x + b.w / 2 <= x0 || q.x - b.w / 2 >= x1 || q.y + b.h / 2 <= y0 || q.y - b.h / 2 >= y1;
+  });
 }
 
 /** Lays the cards out at the spread's coordinates, scaled to fit the available space. */
@@ -89,12 +110,15 @@ export function SpreadBoard({ spread, cards, revealed, onCardClick }: SpreadBoar
             </div>
             {labels.length > 0 && (
               <div
-                className="pointer-events-auto mt-1 flex w-[220%] justify-center gap-3 text-ivory/80"
-                style={{ fontSize: Math.max(10, unit * 0.1) }}
+                className="pointer-events-auto flex w-[220%] justify-center gap-3 text-muted"
+                style={{ fontSize: Math.max(10, Math.min(13, unit * 0.075)), marginTop: Math.min(14, unit * 0.07) }}
               >
                 {labels.map((q) => {
                   const j = spread.positions.indexOf(q);
-                  const text = `${q.index}. ${q.label}`;
+                  const text = `${q.index} ・ ${q.label}`;
+                  const drawnQ = cards[j];
+                  // The card name goes under the position once face up, unless two positions share the row.
+                  const named = labels.length === 1 && revealed.has(j) && captionIsClear(spread, j);
                   // Every label is clickable (turns the card, or opens it once face up), so a covered card in a
                   // stack can be reached the same way as any other.
                   return (
@@ -103,9 +127,17 @@ export function SpreadBoard({ spread, cards, revealed, onCardClick }: SpreadBoar
                       type="button"
                       onClick={() => onCardClick(j)}
                       title={q.meaning}
-                      className="truncate rounded px-1 underline decoration-gold/40 underline-offset-2 hover:text-gold"
+                      className="flex max-w-full flex-col items-center gap-0.5 rounded px-1 tracking-[0.12em] hover:text-gold"
                     >
-                      {text}
+                      <span className="truncate underline decoration-gold/30 underline-offset-2">{text}</span>
+                      {named && (
+                        <span className="truncate font-mincho tracking-normal text-ivory" style={{ fontSize: "1.15em" }}>
+                          {CARDS[drawnQ.cardId].name_ja}
+                          <span className="ml-1.5 text-soft" style={{ fontSize: "0.87em" }}>
+                            {drawnQ.reversed ? "逆位置" : "正位置"}
+                          </span>
+                        </span>
+                      )}
                     </button>
                   );
                 })}

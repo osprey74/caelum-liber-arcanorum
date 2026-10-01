@@ -40,7 +40,7 @@ npm run tauri dev
 
 ### フォント
 
-カード名のプレートには **Shippori Mincho SemiBold** を使います（2026-10-01 決定）。SIL Open Font License 1.1（OFL）のもと、アプリに同梱しています（CDN からは読み込みません）。
+カード名のプレート、題字、見出し、主なボタンには **Shippori Mincho SemiBold** を使います（2026-10-01 決定）。AI の解釈やカードの意味などの本文は OS の明朝体（Windows は游明朝、macOS はヒラギノ明朝）、そのほかの文字は OS のゴシック体（Yu Gothic UI、ヒラギノ角ゴ）で表示します（`tailwind.config.js` の `fontFamily`）。SIL Open Font License 1.1（OFL）のもと、アプリに同梱しています（CDN からは読み込みません）。
 
 | 項目 | 内容 |
 | --- | --- |
@@ -48,25 +48,27 @@ npm run tauri dev
 | 著作権者 | Copyright 2021 The Shippori Mincho Project Authors（https://github.com/fontdasu/ShipporiMincho） |
 | 出典 | https://github.com/google/fonts/tree/main/ofl/shipporimincho |
 | ライセンス | SIL Open Font License 1.1。本文は `src/assets/fonts/ShipporiMincho-OFL.txt`（元の TTF とともに `tools/fonts/` にも同梱） |
-| 同梱の形 | 使用する文字だけに絞ったサブセット（WOFF2、約29KB）。`tools/fonts/build_fonts.py` で作成 |
+| 同梱の形 | 使用する文字だけに絞ったサブセット（WOFF2、約56KB）。`tools/fonts/build_fonts.py` で作成 |
 
 OFL の条件により、サブセットにした書体も同じライセンスで配布しています。
 
 #### サブセットの対象文字
 
-アプリには、次の文字だけに絞った Shippori Mincho を同梱しています（119文字、2026-10-01 時点）。
+アプリには、次の文字だけに絞った Shippori Mincho を同梱しています（264文字、2026-10-01 時点）。
 
 - `src/data/cards.json` の全カードの日本語名（`name_ja`）、ローマ数字（`roman`）、英語名（`name_en`）に出てくる文字
-- `tools/fonts/build_fonts.py` の `EXTRA_TEXT` に書いた文字（数字、ローマ数字の I V X L C D M、空白、「・ー」、「正逆位置表裏面」）
+- `src/data/spreads.json` のスプレッド名と位置の名前に出てくる文字
+- ASCII の印字可能な文字
+- `tools/fonts/build_fonts.py` の `EXTRA_TEXT`（数字、ローマ数字、「・ー」、「正逆位置表裏面」など）と `DISPLAY_TEXT`（題字・見出し・ボタンの決まった文言）に書いた文字
 
 ```text
- 0123456789ACDEFHIJKLMNPQSTVWXacdefghilmnoprstuvwx　さたのるれイエカキクグジスソタットドナプペルワン・ー世人位判制力吊命塔太女審帝師恋悪愚戦教星月正死男界皇神節置義者術表裏車輪逆運陽隠面魔
+ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~　、。「」いえおかきくこごさしすただつてとにのひぶみよらるれをイウエオカキクグケコシジスセソタットドナハヒフプペホメャラリルレロワン・ー世人伝位体儀先全判制力勢十占去吊周命問囲在塔太女姿字定害審履山帝師底心思恋恐悪意愚戦描教星書最月望未本札来果根標正歴死況浮潜状現男界皇目神秘第節終結置義者術表裏解設読識車輪近逆運過釈陽障隠面顕願魔（）：
 ```
 
 対象文字を追加する手順（意味の文章など、カード名以外にも Shippori Mincho を使う場合）：
 
 1. 追加したい文字を `tools/fonts/build_fonts.py` に加えます。
-   - 少しだけ足す場合は、`EXTRA_TEXT` に文字を書き足します。
+   - 見出しやボタンに新しい文言を `font-display` で使う場合は、`DISPLAY_TEXT` に書き足します。
    - 意味の文章（`src/data/meanings.json` など）を丸ごと対象にする場合は、`charset()` でそのファイルの文字列も読み込むようにします。
 2. `py -3.11 tools/fonts/build_fonts.py` を実行し、`src/assets/fonts/shippori-mincho-semibold.woff2` を作り直します。
 3. 表示に使う文字がすべて含まれているかを、ギャラリー画面などで確認します。含まれない文字は別の書体（システムの明朝体）で表示されるため、見た目が混ざります。

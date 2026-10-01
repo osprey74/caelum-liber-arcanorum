@@ -9,10 +9,15 @@ export function Markdown({ text }: { text: string }) {
   let para: string[] = [];
   let list: string[] = [];
   const flush = () => {
-    if (para.length) out.push(<p key={out.length}>{strip(para.join(""))}</p>);
+    if (para.length)
+      out.push(
+        <p key={out.length} className="font-mincho text-[15px] leading-[2] text-ivory">
+          {strip(para.join(""))}
+        </p>,
+      );
     if (list.length)
       out.push(
-        <ul key={out.length} className="list-disc space-y-1 pl-5">
+        <ul key={out.length} className="list-disc space-y-1.5 pl-5 font-mincho text-[15px] leading-[1.9] text-ivory marker:text-gold">
           {list.map((li, i) => (
             <li key={i}>{strip(li)}</li>
           ))}
@@ -27,11 +32,15 @@ export function Markdown({ text }: { text: string }) {
       flush();
     } else if (line.startsWith("### ")) {
       flush();
-      out.push(<h4 key={out.length} className="pt-2 text-gold/90">{strip(line.slice(4))}</h4>);
+      out.push(
+        <h4 key={out.length} className="pt-2 font-display text-[15px] font-semibold text-gold">
+          {strip(line.slice(4))}
+        </h4>,
+      );
     } else if (line.startsWith("## ") || line.startsWith("# ")) {
       flush();
       out.push(
-        <h3 key={out.length} className="border-b border-gold/25 pb-1 pt-3 text-lg text-gold" style={{ fontFamily: '"Shippori Mincho", serif' }}>
+        <h3 key={out.length} className="border-b border-gold/25 pb-2 pt-4 font-display text-lg font-semibold tracking-[0.08em] text-gold first:pt-0">
           {strip(line.replace(/^#+ /, ""))}
         </h3>,
       );
@@ -44,7 +53,7 @@ export function Markdown({ text }: { text: string }) {
     }
   }
   flush();
-  return <div className="space-y-3 leading-relaxed">{out}</div>;
+  return <div className="space-y-3.5">{out}</div>;
 }
 
 /** Drops emphasis markers the model may still write. */

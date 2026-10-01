@@ -44,7 +44,7 @@ export function CardDetail({ drawn, position, onClose }: CardDetailProps) {
               {position.index}. {position.label}
               {position.meaning !== position.label && <span>（{position.meaning}）</span>}
             </p>
-            <h2 className="mt-1 text-2xl text-gold" style={{ fontFamily: '"Shippori Mincho", serif' }}>
+            <h2 className="mt-1 font-display text-2xl font-semibold text-gold">
               {plateName(card)}
               <span className="ml-3 text-base text-ivory/80">{drawn.reversed ? "逆位置" : "正位置"}</span>
             </h2>
@@ -56,8 +56,8 @@ export function CardDetail({ drawn, position, onClose }: CardDetailProps) {
               </li>
             ))}
           </ul>
-          <p className="leading-relaxed">{drawn.reversed ? m.reversed : m.upright}</p>
-          <p className="border-t border-gold/20 pt-3 text-sm leading-relaxed text-ivory/70">{m.description}</p>
+          <p className="font-mincho text-[15px] leading-[2]">{drawn.reversed ? m.reversed : m.upright}</p>
+          <p className="border-t border-gold/20 pt-3 font-mincho text-sm leading-[1.9] text-soft">{m.description}</p>
           <button
             type="button"
             onClick={onClose}

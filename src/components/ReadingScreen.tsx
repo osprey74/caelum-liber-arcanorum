@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { backImage } from "../data/cards";
 import { spreadOf } from "../data/readings";
 import { needsSafetyNotice } from "../lib/crisis";
 import { playFlip, playShuffle } from "../lib/sound";
 import type { Interpretation, Reading } from "../types/reading";
 import { CardDetail } from "./CardDetail";
+import { Icon } from "./Icon";
 import { InterpretationPanel } from "./InterpretationPanel";
 import { SafetyNotice } from "./SafetyNotice";
 import { SpreadBoard } from "./SpreadBoard";
@@ -55,6 +56,13 @@ export function ReadingScreen({
   }, [shuffling]);
 
   const next = spread.positions.findIndex((_, i) => !revealed.has(i));
+  // The interpretation opens beside the cards once they are all face up (the reader can close it again).
+  const autoOpened = useRef(initialPanel);
+  useEffect(() => {
+    if (shuffling || next !== -1 || autoOpened.current) return;
+    autoOpened.current = true;
+    setPanelOpen(true);
+  }, [shuffling, next]);
   const reveal = (i: number) => {
     if (revealed.has(i)) return;
     playFlip();
@@ -73,57 +81,52 @@ export function ReadingScreen({
   const onCardClick = (i: number) => (revealed.has(i) ? setDetail(i) : reveal(i));
   const date = new Date(reading.createdAt).toLocaleString("ja-JP", { dateStyle: "medium", timeStyle: "short" });
 
+  const pill = "flex h-11 items-center gap-1.5 rounded-full px-[18px] text-sm transition";
+
   return (
     <div className="flex h-screen flex-col">
-      <header className="flex flex-wrap items-center gap-x-6 gap-y-2 border-b border-gold/20 px-6 py-3">
-        <button type="button" onClick={onBack} className="rounded border border-gold/40 px-3 py-1 text-sm hover:bg-gold/10">
-          ← 戻る
+      <header className="flex items-center gap-6 border-b border-gold/20 px-8 py-4">
+        <button type="button" onClick={onBack} className={`${pill} shrink-0 border border-gold/45 hover:bg-gold/10`}>
+          <Icon name="back" className="h-4 w-4 text-gold" strokeWidth={2} />
+          {fromHistory ? "履歴" : "ホーム"}
         </button>
-        <div>
-          <h1 className="text-lg text-gold">{spread.name}</h1>
-          <p className="text-xs text-ivory/60">
-            {date}・{reading.settings.scope === "major" ? "大アルカナのみ" : "78枚"}
-            {reading.settings.useReversed ? "" : "・逆位置なし"}
+        <div className="flex shrink-0 flex-col gap-0.5">
+          <h1 className="font-display text-xl font-semibold tracking-[0.08em] text-gold">{spread.name}</h1>
+          <p className="text-xs text-muted">
+            {date} ・ {reading.settings.scope === "major" ? "大アルカナのみ" : "78枚"}
+            {reading.settings.useReversed ? "" : " ・ 逆位置なし"}
           </p>
         </div>
-        {reading.question && (
-          <p className="min-w-0 flex-1 truncate text-sm text-ivory/85" title={reading.question}>
-            問い：{reading.question}
-          </p>
-        )}
-        <div className="ml-auto flex gap-2">
+        <p className="min-w-0 flex-1 truncate rounded-[10px] bg-deep px-[18px] py-2.5 text-sm text-soft" title={reading.question}>
+          <span className="text-muted">問い</span>　{reading.question || "いまの自分に必要なこと"}
+        </p>
+        <div className="flex shrink-0 gap-2">
           {!shuffling && next !== -1 && (
             <>
-              <button type="button" onClick={() => reveal(next)} className="rounded bg-gold px-4 py-1.5 text-sm text-night hover:brightness-110">
+              <button type="button" onClick={() => reveal(next)} className={`${pill} bg-gold font-medium text-night hover:brightness-110`}>
                 次のカードをめくる（{next + 1}/{total}）
               </button>
-              <button
-                type="button"
-                onClick={revealAll}
-                className="rounded border border-gold/40 px-3 py-1.5 text-sm hover:bg-gold/10"
-              >
+              <button type="button" onClick={revealAll} className={`${pill} border border-gold/45 hover:bg-gold/10`}>
                 すべてめくる
               </button>
             </>
           )}
           {!shuffling && next === -1 && (
-            <>
-              <p className="self-center text-sm text-ivory/70">カードをクリックすると意味を表示します</p>
-              <button
-                type="button"
-                onClick={() => setPanelOpen((v) => !v)}
-                className="rounded bg-gold px-4 py-1.5 text-sm text-night hover:brightness-110"
-              >
-                {panelOpen ? "解釈を閉じる" : "解釈を読む"}
-              </button>
-            </>
+            <button
+              type="button"
+              aria-pressed={panelOpen}
+              onClick={() => setPanelOpen((v) => !v)}
+              className={`${pill} ${panelOpen ? "border border-gold/45 hover:bg-gold/10" : "bg-gold font-medium text-night hover:brightness-110"}`}
+            >
+              {panelOpen ? "解釈を閉じる" : "解釈を読む"}
+            </button>
           )}
         </div>
       </header>
       {needsSafetyNotice(reading.question) && <SafetyNotice />}
 
       <div className="relative flex min-h-0 flex-1">
-      <main className="relative min-h-0 min-w-0 flex-1 p-6">
+      <main className="relative flex min-h-0 min-w-0 flex-1 flex-col p-8">
         {shuffling ? (
           <div className="flex h-full flex-col items-center justify-center gap-6" aria-live="polite">
             <div className="shuffle-stack">
@@ -131,10 +134,17 @@ export function ReadingScreen({
                 <img key={i} src={backImage("thumb")} alt="" className={`shuffle-card shuffle-card--${i}`} draggable={false} />
               ))}
             </div>
-            <p className="text-ivory/80">山札をシャッフルしています…</p>
+            <p className="text-soft">山札をシャッフルしています…</p>
           </div>
         ) : (
-          <SpreadBoard spread={spread} cards={reading.cards} revealed={revealed} onCardClick={onCardClick} />
+          <>
+            <div className="min-h-0 flex-1">
+              <SpreadBoard spread={spread} cards={reading.cards} revealed={revealed} onCardClick={onCardClick} />
+            </div>
+            <p className="pt-4 text-center text-[13px] text-muted">
+              {next === -1 ? "カードを選ぶと、そのカードの意味を表示します" : "カードを選ぶとめくれます"}
+            </p>
+          </>
         )}
       </main>
       {panelOpen && (
