@@ -31,6 +31,7 @@ pip install pillow numpy opencv-python
 | `layout_config.json` | 数札の配置の設定（光背の円の計測値、ソードの許容リストなど） |
 | `swords_traced.json` | ラフからトレースしたソードの剣の座標 |
 | `assets/` | 数札用の素材（スート記号・背景・花飾りなど） |
+| `designs/` | 総司が手でデザインしたワンド・ソードの数札（記号だけの透過 PNG、2〜10） |
 | `out/raw/` | 生成案（`{id:02d}_{slug}_{a,b,c}.png`） |
 | `out/composite/` | 合成済みのカード（`{id:02d}_{slug}.png`） |
 | `out/log.jsonl` | 1案ごとの生成ログ |
@@ -144,7 +145,22 @@ python test_layout.py            # 記号の個数・重なりの自動テスト
 - 記号の位置・大きさは、追補の §3 に従います。重なる場合は、自動で5%ずつ縮小します。
 - 記号の周囲の背景を柔らかく暗くします（暗い後光、濃さ85%）。
 
-> **2026-10-01 時点の状態**：ワンドとソードの数札は、総司が手でデザインする方針に切り替えて作業中です。デザイン用の素材（記号単体の透過 PNG、スート別のフレーム画像、目安線のレイヤー）は `out/design_kit/` にあります。以下の自動配置は、その取り込みまでの暫定の仕組みです。
+#### ワンド・ソード（手描きのデザイン、2026-10-01 確定）
+
+ワンドとソードの数札は、総司が手でデザインした `designs/` の画像を使います。
+
+```sh
+python import_design.py            # 取り込み（検証 → 影の付与 → 背景と合成 → selected.json を "h" に）
+python import_design.py --check    # 検証だけ（フレームで隠れる部分、下端 y=0.89）
+python composite.py                # フレームと合成
+```
+
+- 入力：`designs/Sword_design{2..10}.png`、`designs/wand_design{2..10}.png`（1024×1536、背景透過、記号だけ。背景の画像と同じ座標）
+- 影：カップ・ペンタクルと同じ「暗い後光」（濃さ85%）とドロップシャドウ（不透明度18%）を付けます。値は `layout.py` の `HALO_*`・`SHADOW_*` を使います。
+- 背景：`selected_assets.json` で採用した `assets/bg_{suit}_*.png` に合成し、`out/raw/{id:02d}_{slug}_h.png`（h＝手描き）に保存します。`layout.py` は a 案しか書かないため、上書きされません。
+- デザイン用の素材（記号単体の透過 PNG、スート別のフレーム画像、目安線のレイヤー）は `out/design_kit/` に作ってあります（Git の管理対象外）。
+
+以下のワンド・ソードの自動配置（トレース構図と size_tuner）は、手描きのデザインに切り替える前の試作の仕組みとして残してあります。
 
 #### ワンド・ソード（ラフのトレース、`crossed.py`、`handoff-swords-trace.md`・`handoff-wands-swords-unify.md`）
 
