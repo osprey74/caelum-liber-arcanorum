@@ -43,14 +43,24 @@ pip install pillow numpy opencv-python
 ## アプリ用の画像（build_assets.py）
 
 ```sh
-py -3.11 build_assets.py                    # 78枚＋裏面を WebP（品質85）で書き出す
-py -3.11 build_assets.py --full-quality 80  # full サイズだけ品質80にする
+py -3.11 build_assets.py                    # 78枚＋裏面を WebP で書き出す（full 品質80、medium・thumb 品質85）
+py -3.11 build_assets.py --full-quality 85  # full サイズの品質を変える（--quality は medium・thumb）
 py -3.11 review_final.py                    # 最終確認の一覧（out/review/final_*.png）と自動検査
 ```
 
 - `selected.json` の採用案をフレームと合成し、`src/assets/cards/{full,medium,thumb}/{id:02d}.webp`（1024×1536、512×768、256×384）と `back.webp`（`refs/backimage_sym.png`）を書き出します。カード名と記号は画像に含めません。
 - 同時に、リポジトリ直下の `src/data/cards.json`（78件のマニフェスト）を書き出し、採用案の PNG を `final/` に同期します（採用から外れたものは削除）。
 - 採用案は `out/raw/` にあればそれを、なければ `final/` を使います。そのため、`out/` のない環境でも作り直せます。
+- 品質は、full を80、medium・thumb を85とします（2026-10-01 に総司が原寸の比較画像で決定。比較は `out/review/full_quality_compare.png`）。
+
+同梱サイズ（2026-10-01、78枚＋裏面）：
+
+| サイズ | 品質 | 合計 |
+| --- | --- | --- |
+| full（1024×1536） | 80 | 29.8 MB |
+| medium（512×768） | 85 | 11.0 MB |
+| thumb（256×384） | 85 | 3.3 MB |
+| **合計** | | **44.1 MB** |
 
 ## Git LFS
 

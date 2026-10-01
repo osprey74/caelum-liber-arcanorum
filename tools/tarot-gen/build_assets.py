@@ -6,9 +6,9 @@ copied to final/ (tracked with Git LFS), so the assets can be rebuilt on a machi
 sources are read from out/raw when present, otherwise from final/. The card back is the
 point-symmetric refs/backimage_sym.png. Card names and glyphs are not drawn (the app overlays them).
 
-    py -3.11 build_assets.py                 # quality 85
-    py -3.11 build_assets.py --quality 90
-    py -3.11 build_assets.py --full-quality 80   # full size only at quality 80 (medium/thumb keep --quality)
+    py -3.11 build_assets.py                     # full: quality 80, medium / thumb: quality 85 (approved 2026-10-01)
+    py -3.11 build_assets.py --full-quality 85   # full size at another quality
+    py -3.11 build_assets.py --quality 90        # medium / thumb at another quality
 
 Outputs (relative to the repository root):
   src/assets/cards/{full,medium,thumb}/{id:02d}.webp and back.webp
@@ -83,8 +83,8 @@ def manifest_entry(card: dict, stem: str) -> dict:
 def main() -> None:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--quality", type=int, default=85, help="WebP の品質（既定 85）")
-    ap.add_argument("--full-quality", type=int, default=None, help="full サイズだけの品質（既定は --quality と同じ）")
+    ap.add_argument("--quality", type=int, default=85, help="medium・thumb の WebP の品質（既定 85）")
+    ap.add_argument("--full-quality", type=int, default=80, help="full サイズの品質（既定 80）")
     args = ap.parse_args()
 
     cards = c.load_cards()
@@ -125,7 +125,7 @@ def main() -> None:
     MANIFEST.parent.mkdir(parents=True, exist_ok=True)
     MANIFEST.write_text(json.dumps(manifest, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     REPORT.parent.mkdir(parents=True, exist_ok=True)
-    REPORT.write_text(json.dumps({"quality": args.quality, "full_quality": args.full_quality or args.quality,
+    REPORT.write_text(json.dumps({"quality": args.quality, "full_quality": args.full_quality,
                                   "total_bytes": total, "cards": report},
                                  ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     by_size = {n: sum(r["bytes"][n] for r in report) for n in SIZES}

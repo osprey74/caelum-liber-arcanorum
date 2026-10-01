@@ -104,7 +104,8 @@ def main() -> None:
     tile_sheet(all_items, 13).save(c.ROOT / "out" / "review" / "final_78.png")
 
     total = report["total_bytes"]
-    print(f"画像: 78枚 × 3サイズ + 裏面 3サイズ（品質 {report['quality']}）、合計 {total / 1e6:.1f} MB")
+    print(f"画像: 78枚 × 3サイズ + 裏面 3サイズ（full 品質 {report.get('full_quality', report['quality'])}、"
+          f"medium・thumb 品質 {report['quality']}）、合計 {total / 1e6:.1f} MB")
     print("検査: " + ("すべて合格" if not errors else f"{len(errors)} 件の問題"))
     for e in errors:
         print("  - " + e)
