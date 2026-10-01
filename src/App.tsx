@@ -1,8 +1,103 @@
+import { useState } from "react";
 import { Gallery } from "./components/Gallery";
+import { HistoryScreen } from "./components/HistoryScreen";
+import { HomeScreen } from "./components/HomeScreen";
+import { ReadingScreen } from "./components/ReadingScreen";
+import { spreadOf } from "./data/readings";
+import { drawCards } from "./lib/deck";
+import { setSoundEnabled } from "./lib/sound";
+import { loadSettings, saveReading, saveSettings } from "./lib/storage";
+import type { Reading, ReadingSettings, Spread } from "./types/reading";
 
-// Phase 2 (handoff-app-implementation.md): the development gallery is the only screen for now.
+type Screen =
+  | { name: "home" }
+  | { name: "reading"; reading: Reading; fromHistory: boolean }
+  | { name: "history" }
+  | { name: "gallery" };
+
+/**
+ * Development entry points: ?gallery opens the card gallery (phase 2); ?history the history;
+ * ?demo=<spread id> shows a sample
+ * reading with every card face up (not saved), ?detail=<position> also opens that card's detail.
+ */
+function startScreen(): Screen {
+  const q = new URLSearchParams(window.location.search);
+  if (q.has("gallery")) return { name: "gallery" };
+  if (q.has("history")) return { name: "history" };
+  const demo = q.get("demo") as Spread["id"] | null;
+  if (demo) {
+    const spread = spreadOf(demo);
+    const reading: Reading = {
+      id: "demo",
+      createdAt: new Date().toISOString(),
+      spreadId: demo,
+      question: q.get("q") ?? "これからの一年で大切にしたいことは？",
+      settings: { useReversed: true, scope: "all" },
+      cards: drawCards(spread.positions.length, "all", true),
+    };
+    return { name: "reading", reading, fromHistory: true };
+  }
+  return { name: "home" };
+}
+
+const START = startScreen();
+const START_DETAIL = Number(new URLSearchParams(window.location.search).get("detail") ?? NaN);
+
 function App() {
-  return <Gallery />;
+  const [screen, setScreen] = useState<Screen>(START);
+  const [settings, setSettings] = useState<ReadingSettings>(loadSettings);
+
+  setSoundEnabled(settings.sound !== false);
+
+  const changeSettings = (next: ReadingSettings) => {
+    setSettings(next);
+    saveSettings(next);
+  };
+
+  const start = (spreadId: Spread["id"], question: string) => {
+    const spread = spreadOf(spreadId);
+    const reading: Reading = {
+      id: crypto.randomUUID(),
+      createdAt: new Date().toISOString(),
+      spreadId,
+      question,
+      settings,
+      cards: drawCards(spread.positions.length, settings.scope, settings.useReversed),
+    };
+    saveReading(reading);
+    setScreen({ name: "reading", reading, fromHistory: false });
+  };
+
+  switch (screen.name) {
+    case "gallery":
+      return <Gallery />;
+    case "history":
+      return (
+        <HistoryScreen
+          onOpen={(reading) => setScreen({ name: "reading", reading, fromHistory: true })}
+          onBack={() => setScreen({ name: "home" })}
+        />
+      );
+    case "reading":
+      return (
+        <ReadingScreen
+          key={screen.reading.id}
+          reading={screen.reading}
+          fromHistory={screen.fromHistory}
+          initialDetail={screen.reading.id === "demo" && START_DETAIL >= 0 ? START_DETAIL : undefined}
+          onBack={() => setScreen(screen.fromHistory ? { name: "history" } : { name: "home" })}
+        />
+      );
+    default:
+      return (
+        <HomeScreen
+          settings={settings}
+          onSettingsChange={changeSettings}
+          onStart={start}
+          onHistory={() => setScreen({ name: "history" })}
+        />
+      );
+  }
 }
 
 export default App;
