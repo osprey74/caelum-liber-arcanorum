@@ -1,0 +1,8 @@
+# Git LFS (see tools/tarot-gen/README.md "Git LFS")
+# App card images (built by tools/tarot-gen/build_assets.py)
+src/assets/cards/**/*.webp filter=lfs diff=lfs merge=lfs -text
+# Sources needed to rebuild them
+tools/tarot-gen/final/*.png filter=lfs diff=lfs merge=lfs -text
+tools/tarot-gen/designs/*.png filter=lfs diff=lfs merge=lfs -text
+tools/tarot-gen/refs/frame.png filter=lfs diff=lfs merge=lfs -text
+tools/tarot-gen/refs/backimage_sym.png filter=lfs diff=lfs merge=lfs -text

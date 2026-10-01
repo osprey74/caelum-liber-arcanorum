@@ -1,0 +1,1386 @@
+[
+ {
+  "id": 0,
+  "slug": "fool",
+  "roman": "0",
+  "name_en": "The Fool",
+  "name_ja": "愚者",
+  "glyph": "🜁",
+  "arcana": "major",
+  "images": {
+   "full": "cards/full/00.webp",
+   "medium": "cards/medium/00.webp",
+   "thumb": "cards/thumb/00.webp"
+  }
+ },
+ {
+  "id": 1,
+  "slug": "magician",
+  "roman": "I",
+  "name_en": "The Magician",
+  "name_ja": "魔術師",
+  "glyph": "☿",
+  "arcana": "major",
+  "images": {
+   "full": "cards/full/01.webp",
+   "medium": "cards/medium/01.webp",
+   "thumb": "cards/thumb/01.webp"
+  }
+ },
+ {
+  "id": 2,
+  "slug": "high_priestess",
+  "roman": "II",
+  "name_en": "The High Priestess",
+  "name_ja": "女教皇",
+  "glyph": "☽",
+  "arcana": "major",
+  "images": {
+   "full": "cards/full/02.webp",
+   "medium": "cards/medium/02.webp",
+   "thumb": "cards/thumb/02.webp"
+  }
+ },
+ {
+  "id": 3,
+  "slug": "empress",
+  "roman": "III",
+  "name_en": "The Empress",
+  "name_ja": "女帝",
+  "glyph": "♀",
+  "arcana": "major",
+  "images": {
+   "full": "cards/full/03.webp",
+   "medium": "cards/medium/03.webp",
+   "thumb": "cards/thumb/03.webp"
+  }
+ },
+ {
+  "id": 4,
+  "slug": "emperor",
+  "roman": "IV",
+  "name_en": "The Emperor",
+  "name_ja": "皇帝",
+  "glyph": "♈",
+  "arcana": "major",
+  "images": {
+   "full": "cards/full/04.webp",
+   "medium": "cards/medium/04.webp",
+   "thumb": "cards/thumb/04.webp"
+  }
+ },
+ {
+  "id": 5,
+  "slug": "hierophant",
+  "roman": "V",
+  "name_en": "The Hierophant",
+  "name_ja": "教皇",
+  "glyph": "♉",
+  "arcana": "major",
+  "images": {
+   "full": "cards/full/05.webp",
+   "medium": "cards/medium/05.webp",
+   "thumb": "cards/thumb/05.webp"
+  }
+ },
+ {
+  "id": 6,
+  "slug": "lovers",
+  "roman": "VI",
+  "name_en": "The Lovers",
+  "name_ja": "恋人",
+  "glyph": "♊",
+  "arcana": "major",
+  "images": {
+   "full": "cards/full/06.webp",
+   "medium": "cards/medium/06.webp",
+   "thumb": "cards/thumb/06.webp"
+  }
+ },
+ {
+  "id": 7,
+  "slug": "chariot",
+  "roman": "VII",
+  "name_en": "The Chariot",
+  "name_ja": "戦車",
+  "glyph": "♋",
+  "arcana": "major",
+  "images": {
+   "full": "cards/full/07.webp",
+   "medium": "cards/medium/07.webp",
+   "thumb": "cards/thumb/07.webp"
+  }
+ },
+ {
+  "id": 8,
+  "slug": "strength",
+  "roman": "VIII",
+  "name_en": "Strength",
+  "name_ja": "力",
+  "glyph": "♌",
+  "arcana": "major",
+  "images": {
+   "full": "cards/full/08.webp",
+   "medium": "cards/medium/08.webp",
+   "thumb": "cards/thumb/08.webp"
+  }
+ },
+ {
+  "id": 9,
+  "slug": "hermit",
+  "roman": "IX",
+  "name_en": "The Hermit",
+  "name_ja": "隠者",
+  "glyph": "♍",
+  "arcana": "major",
+  "images": {
+   "full": "cards/full/09.webp",
+   "medium": "cards/medium/09.webp",
+   "thumb": "cards/thumb/09.webp"
+  }
+ },
+ {
+  "id": 10,
+  "slug": "wheel_of_fortune",
+  "roman": "X",
+  "name_en": "Wheel of Fortune",
+  "name_ja": "運命の輪",
+  "glyph": "♃",
+  "arcana": "major",
+  "images": {
+   "full": "cards/full/10.webp",
+   "medium": "cards/medium/10.webp",
+   "thumb": "cards/thumb/10.webp"
+  }
+ },
+ {
+  "id": 11,
+  "slug": "justice",
+  "roman": "XI",
+  "name_en": "Justice",
+  "name_ja": "正義",
+  "glyph": "♎",
+  "arcana": "major",
+  "images": {
+   "full": "cards/full/11.webp",
+   "medium": "cards/medium/11.webp",
+   "thumb": "cards/thumb/11.webp"
+  }
+ },
+ {
+  "id": 12,
+  "slug": "hanged_man",
+  "roman": "XII",
+  "name_en": "The Hanged Man",
+  "name_ja": "吊るされた男",
+  "glyph": "🜄",
+  "arcana": "major",
+  "images": {
+   "full": "cards/full/12.webp",
+   "medium": "cards/medium/12.webp",
+   "thumb": "cards/thumb/12.webp"
+  }
+ },
+ {
+  "id": 13,
+  "slug": "death",
+  "roman": "XIII",
+  "name_en": "Death",
+  "name_ja": "死神",
+  "glyph": "♏",
+  "arcana": "major",
+  "images": {
+   "full": "cards/full/13.webp",
+   "medium": "cards/medium/13.webp",
+   "thumb": "cards/thumb/13.webp"
+  }
+ },
+ {
+  "id": 14,
+  "slug": "temperance",
+  "roman": "XIV",
+  "name_en": "Temperance",
+  "name_ja": "節制",
+  "glyph": "♐",
+  "arcana": "major",
+  "images": {
+   "full": "cards/full/14.webp",
+   "medium": "cards/medium/14.webp",
+   "thumb": "cards/thumb/14.webp"
+  }
+ },
+ {
+  "id": 15,
+  "slug": "devil",
+  "roman": "XV",
+  "name_en": "The Devil",
+  "name_ja": "悪魔",
+  "glyph": "♑",
+  "arcana": "major",
+  "images": {
+   "full": "cards/full/15.webp",
+   "medium": "cards/medium/15.webp",
+   "thumb": "cards/thumb/15.webp"
+  }
+ },
+ {
+  "id": 16,
+  "slug": "tower",
+  "roman": "XVI",
+  "name_en": "The Tower",
+  "name_ja": "塔",
+  "glyph": "♂",
+  "arcana": "major",
+  "images": {
+   "full": "cards/full/16.webp",
+   "medium": "cards/medium/16.webp",
+   "thumb": "cards/thumb/16.webp"
+  }
+ },
+ {
+  "id": 17,
+  "slug": "star",
+  "roman": "XVII",
+  "name_en": "The Star",
+  "name_ja": "星",
+  "glyph": "♒",
+  "arcana": "major",
+  "images": {
+   "full": "cards/full/17.webp",
+   "medium": "cards/medium/17.webp",
+   "thumb": "cards/thumb/17.webp"
+  }
+ },
+ {
+  "id": 18,
+  "slug": "moon",
+  "roman": "XVIII",
+  "name_en": "The Moon",
+  "name_ja": "月",
+  "glyph": "♓",
+  "arcana": "major",
+  "images": {
+   "full": "cards/full/18.webp",
+   "medium": "cards/medium/18.webp",
+   "thumb": "cards/thumb/18.webp"
+  }
+ },
+ {
+  "id": 19,
+  "slug": "sun",
+  "roman": "XIX",
+  "name_en": "The Sun",
+  "name_ja": "太陽",
+  "glyph": "☉",
+  "arcana": "major",
+  "images": {
+   "full": "cards/full/19.webp",
+   "medium": "cards/medium/19.webp",
+   "thumb": "cards/thumb/19.webp"
+  }
+ },
+ {
+  "id": 20,
+  "slug": "judgement",
+  "roman": "XX",
+  "name_en": "Judgement",
+  "name_ja": "審判",
+  "glyph": "🜂",
+  "arcana": "major",
+  "images": {
+   "full": "cards/full/20.webp",
+   "medium": "cards/medium/20.webp",
+   "thumb": "cards/thumb/20.webp"
+  }
+ },
+ {
+  "id": 21,
+  "slug": "world",
+  "roman": "XXI",
+  "name_en": "The World",
+  "name_ja": "世界",
+  "glyph": "♄",
+  "arcana": "major",
+  "images": {
+   "full": "cards/full/21.webp",
+   "medium": "cards/medium/21.webp",
+   "thumb": "cards/thumb/21.webp"
+  }
+ },
+ {
+  "id": 22,
+  "slug": "wands_01",
+  "suit": "wands",
+  "rank": 1,
+  "type": "ace",
+  "name_en": "Ace of Wands",
+  "name_ja": "ワンドのエース",
+  "glyph": "🜂",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/22.webp",
+   "medium": "cards/medium/22.webp",
+   "thumb": "cards/thumb/22.webp"
+  }
+ },
+ {
+  "id": 23,
+  "slug": "wands_02",
+  "suit": "wands",
+  "rank": 2,
+  "type": "pip",
+  "name_en": "Two of Wands",
+  "name_ja": "ワンドの2",
+  "decan": {
+   "planet": "Mars",
+   "sign": "Aries",
+   "decan_no": 1
+  },
+  "glyph": "♂♈",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/23.webp",
+   "medium": "cards/medium/23.webp",
+   "thumb": "cards/thumb/23.webp"
+  }
+ },
+ {
+  "id": 24,
+  "slug": "wands_03",
+  "suit": "wands",
+  "rank": 3,
+  "type": "pip",
+  "name_en": "Three of Wands",
+  "name_ja": "ワンドの3",
+  "decan": {
+   "planet": "Sun",
+   "sign": "Aries",
+   "decan_no": 2
+  },
+  "glyph": "☉♈",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/24.webp",
+   "medium": "cards/medium/24.webp",
+   "thumb": "cards/thumb/24.webp"
+  }
+ },
+ {
+  "id": 25,
+  "slug": "wands_04",
+  "suit": "wands",
+  "rank": 4,
+  "type": "pip",
+  "name_en": "Four of Wands",
+  "name_ja": "ワンドの4",
+  "decan": {
+   "planet": "Venus",
+   "sign": "Aries",
+   "decan_no": 3
+  },
+  "glyph": "♀♈",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/25.webp",
+   "medium": "cards/medium/25.webp",
+   "thumb": "cards/thumb/25.webp"
+  }
+ },
+ {
+  "id": 26,
+  "slug": "wands_05",
+  "suit": "wands",
+  "rank": 5,
+  "type": "pip",
+  "name_en": "Five of Wands",
+  "name_ja": "ワンドの5",
+  "decan": {
+   "planet": "Saturn",
+   "sign": "Leo",
+   "decan_no": 1
+  },
+  "glyph": "♄♌",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/26.webp",
+   "medium": "cards/medium/26.webp",
+   "thumb": "cards/thumb/26.webp"
+  }
+ },
+ {
+  "id": 27,
+  "slug": "wands_06",
+  "suit": "wands",
+  "rank": 6,
+  "type": "pip",
+  "name_en": "Six of Wands",
+  "name_ja": "ワンドの6",
+  "decan": {
+   "planet": "Jupiter",
+   "sign": "Leo",
+   "decan_no": 2
+  },
+  "glyph": "♃♌",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/27.webp",
+   "medium": "cards/medium/27.webp",
+   "thumb": "cards/thumb/27.webp"
+  }
+ },
+ {
+  "id": 28,
+  "slug": "wands_07",
+  "suit": "wands",
+  "rank": 7,
+  "type": "pip",
+  "name_en": "Seven of Wands",
+  "name_ja": "ワンドの7",
+  "decan": {
+   "planet": "Mars",
+   "sign": "Leo",
+   "decan_no": 3
+  },
+  "glyph": "♂♌",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/28.webp",
+   "medium": "cards/medium/28.webp",
+   "thumb": "cards/thumb/28.webp"
+  }
+ },
+ {
+  "id": 29,
+  "slug": "wands_08",
+  "suit": "wands",
+  "rank": 8,
+  "type": "pip",
+  "name_en": "Eight of Wands",
+  "name_ja": "ワンドの8",
+  "decan": {
+   "planet": "Mercury",
+   "sign": "Sagittarius",
+   "decan_no": 1
+  },
+  "glyph": "☿♐",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/29.webp",
+   "medium": "cards/medium/29.webp",
+   "thumb": "cards/thumb/29.webp"
+  }
+ },
+ {
+  "id": 30,
+  "slug": "wands_09",
+  "suit": "wands",
+  "rank": 9,
+  "type": "pip",
+  "name_en": "Nine of Wands",
+  "name_ja": "ワンドの9",
+  "decan": {
+   "planet": "Moon",
+   "sign": "Sagittarius",
+   "decan_no": 2
+  },
+  "glyph": "☽♐",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/30.webp",
+   "medium": "cards/medium/30.webp",
+   "thumb": "cards/thumb/30.webp"
+  }
+ },
+ {
+  "id": 31,
+  "slug": "wands_10",
+  "suit": "wands",
+  "rank": 10,
+  "type": "pip",
+  "name_en": "Ten of Wands",
+  "name_ja": "ワンドの10",
+  "decan": {
+   "planet": "Saturn",
+   "sign": "Sagittarius",
+   "decan_no": 3
+  },
+  "glyph": "♄♐",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/31.webp",
+   "medium": "cards/medium/31.webp",
+   "thumb": "cards/thumb/31.webp"
+  }
+ },
+ {
+  "id": 32,
+  "slug": "wands_page",
+  "suit": "wands",
+  "rank": "page",
+  "type": "court",
+  "name_en": "Page of Wands",
+  "name_ja": "ワンドのペイジ",
+  "glyph": "🜂",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/32.webp",
+   "medium": "cards/medium/32.webp",
+   "thumb": "cards/thumb/32.webp"
+  }
+ },
+ {
+  "id": 33,
+  "slug": "wands_knight",
+  "suit": "wands",
+  "rank": "knight",
+  "type": "court",
+  "name_en": "Knight of Wands",
+  "name_ja": "ワンドのナイト",
+  "glyph": "🜂",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/33.webp",
+   "medium": "cards/medium/33.webp",
+   "thumb": "cards/thumb/33.webp"
+  }
+ },
+ {
+  "id": 34,
+  "slug": "wands_queen",
+  "suit": "wands",
+  "rank": "queen",
+  "type": "court",
+  "name_en": "Queen of Wands",
+  "name_ja": "ワンドのクイーン",
+  "glyph": "🜂",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/34.webp",
+   "medium": "cards/medium/34.webp",
+   "thumb": "cards/thumb/34.webp"
+  }
+ },
+ {
+  "id": 35,
+  "slug": "wands_king",
+  "suit": "wands",
+  "rank": "king",
+  "type": "court",
+  "name_en": "King of Wands",
+  "name_ja": "ワンドのキング",
+  "glyph": "🜂",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/35.webp",
+   "medium": "cards/medium/35.webp",
+   "thumb": "cards/thumb/35.webp"
+  }
+ },
+ {
+  "id": 36,
+  "slug": "cups_01",
+  "suit": "cups",
+  "rank": 1,
+  "type": "ace",
+  "name_en": "Ace of Cups",
+  "name_ja": "カップのエース",
+  "glyph": "🜄",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/36.webp",
+   "medium": "cards/medium/36.webp",
+   "thumb": "cards/thumb/36.webp"
+  }
+ },
+ {
+  "id": 37,
+  "slug": "cups_02",
+  "suit": "cups",
+  "rank": 2,
+  "type": "pip",
+  "name_en": "Two of Cups",
+  "name_ja": "カップの2",
+  "decan": {
+   "planet": "Venus",
+   "sign": "Cancer",
+   "decan_no": 1
+  },
+  "glyph": "♀♋",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/37.webp",
+   "medium": "cards/medium/37.webp",
+   "thumb": "cards/thumb/37.webp"
+  }
+ },
+ {
+  "id": 38,
+  "slug": "cups_03",
+  "suit": "cups",
+  "rank": 3,
+  "type": "pip",
+  "name_en": "Three of Cups",
+  "name_ja": "カップの3",
+  "decan": {
+   "planet": "Mercury",
+   "sign": "Cancer",
+   "decan_no": 2
+  },
+  "glyph": "☿♋",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/38.webp",
+   "medium": "cards/medium/38.webp",
+   "thumb": "cards/thumb/38.webp"
+  }
+ },
+ {
+  "id": 39,
+  "slug": "cups_04",
+  "suit": "cups",
+  "rank": 4,
+  "type": "pip",
+  "name_en": "Four of Cups",
+  "name_ja": "カップの4",
+  "decan": {
+   "planet": "Moon",
+   "sign": "Cancer",
+   "decan_no": 3
+  },
+  "glyph": "☽♋",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/39.webp",
+   "medium": "cards/medium/39.webp",
+   "thumb": "cards/thumb/39.webp"
+  }
+ },
+ {
+  "id": 40,
+  "slug": "cups_05",
+  "suit": "cups",
+  "rank": 5,
+  "type": "pip",
+  "name_en": "Five of Cups",
+  "name_ja": "カップの5",
+  "decan": {
+   "planet": "Mars",
+   "sign": "Scorpio",
+   "decan_no": 1
+  },
+  "glyph": "♂♏",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/40.webp",
+   "medium": "cards/medium/40.webp",
+   "thumb": "cards/thumb/40.webp"
+  }
+ },
+ {
+  "id": 41,
+  "slug": "cups_06",
+  "suit": "cups",
+  "rank": 6,
+  "type": "pip",
+  "name_en": "Six of Cups",
+  "name_ja": "カップの6",
+  "decan": {
+   "planet": "Sun",
+   "sign": "Scorpio",
+   "decan_no": 2
+  },
+  "glyph": "☉♏",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/41.webp",
+   "medium": "cards/medium/41.webp",
+   "thumb": "cards/thumb/41.webp"
+  }
+ },
+ {
+  "id": 42,
+  "slug": "cups_07",
+  "suit": "cups",
+  "rank": 7,
+  "type": "pip",
+  "name_en": "Seven of Cups",
+  "name_ja": "カップの7",
+  "decan": {
+   "planet": "Venus",
+   "sign": "Scorpio",
+   "decan_no": 3
+  },
+  "glyph": "♀♏",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/42.webp",
+   "medium": "cards/medium/42.webp",
+   "thumb": "cards/thumb/42.webp"
+  }
+ },
+ {
+  "id": 43,
+  "slug": "cups_08",
+  "suit": "cups",
+  "rank": 8,
+  "type": "pip",
+  "name_en": "Eight of Cups",
+  "name_ja": "カップの8",
+  "decan": {
+   "planet": "Saturn",
+   "sign": "Pisces",
+   "decan_no": 1
+  },
+  "glyph": "♄♓",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/43.webp",
+   "medium": "cards/medium/43.webp",
+   "thumb": "cards/thumb/43.webp"
+  }
+ },
+ {
+  "id": 44,
+  "slug": "cups_09",
+  "suit": "cups",
+  "rank": 9,
+  "type": "pip",
+  "name_en": "Nine of Cups",
+  "name_ja": "カップの9",
+  "decan": {
+   "planet": "Jupiter",
+   "sign": "Pisces",
+   "decan_no": 2
+  },
+  "glyph": "♃♓",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/44.webp",
+   "medium": "cards/medium/44.webp",
+   "thumb": "cards/thumb/44.webp"
+  }
+ },
+ {
+  "id": 45,
+  "slug": "cups_10",
+  "suit": "cups",
+  "rank": 10,
+  "type": "pip",
+  "name_en": "Ten of Cups",
+  "name_ja": "カップの10",
+  "decan": {
+   "planet": "Mars",
+   "sign": "Pisces",
+   "decan_no": 3
+  },
+  "glyph": "♂♓",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/45.webp",
+   "medium": "cards/medium/45.webp",
+   "thumb": "cards/thumb/45.webp"
+  }
+ },
+ {
+  "id": 46,
+  "slug": "cups_page",
+  "suit": "cups",
+  "rank": "page",
+  "type": "court",
+  "name_en": "Page of Cups",
+  "name_ja": "カップのペイジ",
+  "glyph": "🜄",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/46.webp",
+   "medium": "cards/medium/46.webp",
+   "thumb": "cards/thumb/46.webp"
+  }
+ },
+ {
+  "id": 47,
+  "slug": "cups_knight",
+  "suit": "cups",
+  "rank": "knight",
+  "type": "court",
+  "name_en": "Knight of Cups",
+  "name_ja": "カップのナイト",
+  "glyph": "🜄",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/47.webp",
+   "medium": "cards/medium/47.webp",
+   "thumb": "cards/thumb/47.webp"
+  }
+ },
+ {
+  "id": 48,
+  "slug": "cups_queen",
+  "suit": "cups",
+  "rank": "queen",
+  "type": "court",
+  "name_en": "Queen of Cups",
+  "name_ja": "カップのクイーン",
+  "glyph": "🜄",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/48.webp",
+   "medium": "cards/medium/48.webp",
+   "thumb": "cards/thumb/48.webp"
+  }
+ },
+ {
+  "id": 49,
+  "slug": "cups_king",
+  "suit": "cups",
+  "rank": "king",
+  "type": "court",
+  "name_en": "King of Cups",
+  "name_ja": "カップのキング",
+  "glyph": "🜄",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/49.webp",
+   "medium": "cards/medium/49.webp",
+   "thumb": "cards/thumb/49.webp"
+  }
+ },
+ {
+  "id": 50,
+  "slug": "swords_01",
+  "suit": "swords",
+  "rank": 1,
+  "type": "ace",
+  "name_en": "Ace of Swords",
+  "name_ja": "ソードのエース",
+  "glyph": "🜁",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/50.webp",
+   "medium": "cards/medium/50.webp",
+   "thumb": "cards/thumb/50.webp"
+  }
+ },
+ {
+  "id": 51,
+  "slug": "swords_02",
+  "suit": "swords",
+  "rank": 2,
+  "type": "pip",
+  "name_en": "Two of Swords",
+  "name_ja": "ソードの2",
+  "decan": {
+   "planet": "Moon",
+   "sign": "Libra",
+   "decan_no": 1
+  },
+  "glyph": "☽♎",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/51.webp",
+   "medium": "cards/medium/51.webp",
+   "thumb": "cards/thumb/51.webp"
+  }
+ },
+ {
+  "id": 52,
+  "slug": "swords_03",
+  "suit": "swords",
+  "rank": 3,
+  "type": "pip",
+  "name_en": "Three of Swords",
+  "name_ja": "ソードの3",
+  "decan": {
+   "planet": "Saturn",
+   "sign": "Libra",
+   "decan_no": 2
+  },
+  "glyph": "♄♎",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/52.webp",
+   "medium": "cards/medium/52.webp",
+   "thumb": "cards/thumb/52.webp"
+  }
+ },
+ {
+  "id": 53,
+  "slug": "swords_04",
+  "suit": "swords",
+  "rank": 4,
+  "type": "pip",
+  "name_en": "Four of Swords",
+  "name_ja": "ソードの4",
+  "decan": {
+   "planet": "Jupiter",
+   "sign": "Libra",
+   "decan_no": 3
+  },
+  "glyph": "♃♎",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/53.webp",
+   "medium": "cards/medium/53.webp",
+   "thumb": "cards/thumb/53.webp"
+  }
+ },
+ {
+  "id": 54,
+  "slug": "swords_05",
+  "suit": "swords",
+  "rank": 5,
+  "type": "pip",
+  "name_en": "Five of Swords",
+  "name_ja": "ソードの5",
+  "decan": {
+   "planet": "Venus",
+   "sign": "Aquarius",
+   "decan_no": 1
+  },
+  "glyph": "♀♒",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/54.webp",
+   "medium": "cards/medium/54.webp",
+   "thumb": "cards/thumb/54.webp"
+  }
+ },
+ {
+  "id": 55,
+  "slug": "swords_06",
+  "suit": "swords",
+  "rank": 6,
+  "type": "pip",
+  "name_en": "Six of Swords",
+  "name_ja": "ソードの6",
+  "decan": {
+   "planet": "Mercury",
+   "sign": "Aquarius",
+   "decan_no": 2
+  },
+  "glyph": "☿♒",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/55.webp",
+   "medium": "cards/medium/55.webp",
+   "thumb": "cards/thumb/55.webp"
+  }
+ },
+ {
+  "id": 56,
+  "slug": "swords_07",
+  "suit": "swords",
+  "rank": 7,
+  "type": "pip",
+  "name_en": "Seven of Swords",
+  "name_ja": "ソードの7",
+  "decan": {
+   "planet": "Moon",
+   "sign": "Aquarius",
+   "decan_no": 3
+  },
+  "glyph": "☽♒",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/56.webp",
+   "medium": "cards/medium/56.webp",
+   "thumb": "cards/thumb/56.webp"
+  }
+ },
+ {
+  "id": 57,
+  "slug": "swords_08",
+  "suit": "swords",
+  "rank": 8,
+  "type": "pip",
+  "name_en": "Eight of Swords",
+  "name_ja": "ソードの8",
+  "decan": {
+   "planet": "Jupiter",
+   "sign": "Gemini",
+   "decan_no": 1
+  },
+  "glyph": "♃♊",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/57.webp",
+   "medium": "cards/medium/57.webp",
+   "thumb": "cards/thumb/57.webp"
+  }
+ },
+ {
+  "id": 58,
+  "slug": "swords_09",
+  "suit": "swords",
+  "rank": 9,
+  "type": "pip",
+  "name_en": "Nine of Swords",
+  "name_ja": "ソードの9",
+  "decan": {
+   "planet": "Mars",
+   "sign": "Gemini",
+   "decan_no": 2
+  },
+  "glyph": "♂♊",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/58.webp",
+   "medium": "cards/medium/58.webp",
+   "thumb": "cards/thumb/58.webp"
+  }
+ },
+ {
+  "id": 59,
+  "slug": "swords_10",
+  "suit": "swords",
+  "rank": 10,
+  "type": "pip",
+  "name_en": "Ten of Swords",
+  "name_ja": "ソードの10",
+  "decan": {
+   "planet": "Sun",
+   "sign": "Gemini",
+   "decan_no": 3
+  },
+  "glyph": "☉♊",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/59.webp",
+   "medium": "cards/medium/59.webp",
+   "thumb": "cards/thumb/59.webp"
+  }
+ },
+ {
+  "id": 60,
+  "slug": "swords_page",
+  "suit": "swords",
+  "rank": "page",
+  "type": "court",
+  "name_en": "Page of Swords",
+  "name_ja": "ソードのペイジ",
+  "glyph": "🜁",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/60.webp",
+   "medium": "cards/medium/60.webp",
+   "thumb": "cards/thumb/60.webp"
+  }
+ },
+ {
+  "id": 61,
+  "slug": "swords_knight",
+  "suit": "swords",
+  "rank": "knight",
+  "type": "court",
+  "name_en": "Knight of Swords",
+  "name_ja": "ソードのナイト",
+  "glyph": "🜁",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/61.webp",
+   "medium": "cards/medium/61.webp",
+   "thumb": "cards/thumb/61.webp"
+  }
+ },
+ {
+  "id": 62,
+  "slug": "swords_queen",
+  "suit": "swords",
+  "rank": "queen",
+  "type": "court",
+  "name_en": "Queen of Swords",
+  "name_ja": "ソードのクイーン",
+  "glyph": "🜁",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/62.webp",
+   "medium": "cards/medium/62.webp",
+   "thumb": "cards/thumb/62.webp"
+  }
+ },
+ {
+  "id": 63,
+  "slug": "swords_king",
+  "suit": "swords",
+  "rank": "king",
+  "type": "court",
+  "name_en": "King of Swords",
+  "name_ja": "ソードのキング",
+  "glyph": "🜁",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/63.webp",
+   "medium": "cards/medium/63.webp",
+   "thumb": "cards/thumb/63.webp"
+  }
+ },
+ {
+  "id": 64,
+  "slug": "pentacles_01",
+  "suit": "pentacles",
+  "rank": 1,
+  "type": "ace",
+  "name_en": "Ace of Pentacles",
+  "name_ja": "ペンタクルのエース",
+  "glyph": "🜃",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/64.webp",
+   "medium": "cards/medium/64.webp",
+   "thumb": "cards/thumb/64.webp"
+  }
+ },
+ {
+  "id": 65,
+  "slug": "pentacles_02",
+  "suit": "pentacles",
+  "rank": 2,
+  "type": "pip",
+  "name_en": "Two of Pentacles",
+  "name_ja": "ペンタクルの2",
+  "decan": {
+   "planet": "Jupiter",
+   "sign": "Capricorn",
+   "decan_no": 1
+  },
+  "glyph": "♃♑",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/65.webp",
+   "medium": "cards/medium/65.webp",
+   "thumb": "cards/thumb/65.webp"
+  }
+ },
+ {
+  "id": 66,
+  "slug": "pentacles_03",
+  "suit": "pentacles",
+  "rank": 3,
+  "type": "pip",
+  "name_en": "Three of Pentacles",
+  "name_ja": "ペンタクルの3",
+  "decan": {
+   "planet": "Mars",
+   "sign": "Capricorn",
+   "decan_no": 2
+  },
+  "glyph": "♂♑",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/66.webp",
+   "medium": "cards/medium/66.webp",
+   "thumb": "cards/thumb/66.webp"
+  }
+ },
+ {
+  "id": 67,
+  "slug": "pentacles_04",
+  "suit": "pentacles",
+  "rank": 4,
+  "type": "pip",
+  "name_en": "Four of Pentacles",
+  "name_ja": "ペンタクルの4",
+  "decan": {
+   "planet": "Sun",
+   "sign": "Capricorn",
+   "decan_no": 3
+  },
+  "glyph": "☉♑",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/67.webp",
+   "medium": "cards/medium/67.webp",
+   "thumb": "cards/thumb/67.webp"
+  }
+ },
+ {
+  "id": 68,
+  "slug": "pentacles_05",
+  "suit": "pentacles",
+  "rank": 5,
+  "type": "pip",
+  "name_en": "Five of Pentacles",
+  "name_ja": "ペンタクルの5",
+  "decan": {
+   "planet": "Mercury",
+   "sign": "Taurus",
+   "decan_no": 1
+  },
+  "glyph": "☿♉",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/68.webp",
+   "medium": "cards/medium/68.webp",
+   "thumb": "cards/thumb/68.webp"
+  }
+ },
+ {
+  "id": 69,
+  "slug": "pentacles_06",
+  "suit": "pentacles",
+  "rank": 6,
+  "type": "pip",
+  "name_en": "Six of Pentacles",
+  "name_ja": "ペンタクルの6",
+  "decan": {
+   "planet": "Moon",
+   "sign": "Taurus",
+   "decan_no": 2
+  },
+  "glyph": "☽♉",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/69.webp",
+   "medium": "cards/medium/69.webp",
+   "thumb": "cards/thumb/69.webp"
+  }
+ },
+ {
+  "id": 70,
+  "slug": "pentacles_07",
+  "suit": "pentacles",
+  "rank": 7,
+  "type": "pip",
+  "name_en": "Seven of Pentacles",
+  "name_ja": "ペンタクルの7",
+  "decan": {
+   "planet": "Saturn",
+   "sign": "Taurus",
+   "decan_no": 3
+  },
+  "glyph": "♄♉",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/70.webp",
+   "medium": "cards/medium/70.webp",
+   "thumb": "cards/thumb/70.webp"
+  }
+ },
+ {
+  "id": 71,
+  "slug": "pentacles_08",
+  "suit": "pentacles",
+  "rank": 8,
+  "type": "pip",
+  "name_en": "Eight of Pentacles",
+  "name_ja": "ペンタクルの8",
+  "decan": {
+   "planet": "Sun",
+   "sign": "Virgo",
+   "decan_no": 1
+  },
+  "glyph": "☉♍",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/71.webp",
+   "medium": "cards/medium/71.webp",
+   "thumb": "cards/thumb/71.webp"
+  }
+ },
+ {
+  "id": 72,
+  "slug": "pentacles_09",
+  "suit": "pentacles",
+  "rank": 9,
+  "type": "pip",
+  "name_en": "Nine of Pentacles",
+  "name_ja": "ペンタクルの9",
+  "decan": {
+   "planet": "Venus",
+   "sign": "Virgo",
+   "decan_no": 2
+  },
+  "glyph": "♀♍",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/72.webp",
+   "medium": "cards/medium/72.webp",
+   "thumb": "cards/thumb/72.webp"
+  }
+ },
+ {
+  "id": 73,
+  "slug": "pentacles_10",
+  "suit": "pentacles",
+  "rank": 10,
+  "type": "pip",
+  "name_en": "Ten of Pentacles",
+  "name_ja": "ペンタクルの10",
+  "decan": {
+   "planet": "Mercury",
+   "sign": "Virgo",
+   "decan_no": 3
+  },
+  "glyph": "☿♍",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/73.webp",
+   "medium": "cards/medium/73.webp",
+   "thumb": "cards/thumb/73.webp"
+  }
+ },
+ {
+  "id": 74,
+  "slug": "pentacles_page",
+  "suit": "pentacles",
+  "rank": "page",
+  "type": "court",
+  "name_en": "Page of Pentacles",
+  "name_ja": "ペンタクルのペイジ",
+  "glyph": "🜃",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/74.webp",
+   "medium": "cards/medium/74.webp",
+   "thumb": "cards/thumb/74.webp"
+  }
+ },
+ {
+  "id": 75,
+  "slug": "pentacles_knight",
+  "suit": "pentacles",
+  "rank": "knight",
+  "type": "court",
+  "name_en": "Knight of Pentacles",
+  "name_ja": "ペンタクルのナイト",
+  "glyph": "🜃",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/75.webp",
+   "medium": "cards/medium/75.webp",
+   "thumb": "cards/thumb/75.webp"
+  }
+ },
+ {
+  "id": 76,
+  "slug": "pentacles_queen",
+  "suit": "pentacles",
+  "rank": "queen",
+  "type": "court",
+  "name_en": "Queen of Pentacles",
+  "name_ja": "ペンタクルのクイーン",
+  "glyph": "🜃",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/76.webp",
+   "medium": "cards/medium/76.webp",
+   "thumb": "cards/thumb/76.webp"
+  }
+ },
+ {
+  "id": 77,
+  "slug": "pentacles_king",
+  "suit": "pentacles",
+  "rank": "king",
+  "type": "court",
+  "name_en": "King of Pentacles",
+  "name_ja": "ペンタクルのキング",
+  "glyph": "🜃",
+  "arcana": "minor",
+  "images": {
+   "full": "cards/full/77.webp",
+   "medium": "cards/medium/77.webp",
+   "thumb": "cards/thumb/77.webp"
+  }
+ }
+]

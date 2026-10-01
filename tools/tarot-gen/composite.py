@@ -95,7 +95,8 @@ def composite(frame: Image.Image, art: Image.Image, mask: np.ndarray,
 
 
 def load_font(size: int) -> ImageFont.ImageFont:
-    for name in ("arial.ttf", "DejaVuSans.ttf"):
+    # Japanese-capable fonts first (card names), then Latin fallbacks.
+    for name in ("YuGothM.ttc", "meiryo.ttc", "msgothic.ttc", "arial.ttf", "DejaVuSans.ttf"):
         try:
             return ImageFont.truetype(name, size)
         except OSError:

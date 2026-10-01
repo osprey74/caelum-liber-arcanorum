@@ -31,13 +31,63 @@ pip install pillow numpy opencv-python
 | `layout_config.json` | 数札の配置の設定（光背の円の計測値、ソードの許容リストなど） |
 | `swords_traced.json` | ラフからトレースしたソードの剣の座標 |
 | `assets/` | 数札用の素材（スート記号・背景・花飾りなど） |
-| `designs/` | 総司が手でデザインしたワンド・ソードの数札（記号だけの透過 PNG、2〜10） |
+| `designs/` | 総司が手でデザインしたワンド・ソードの数札（記号だけの透過 PNG、2〜10）。Git LFS |
+| `final/` | 決定稿：`selected.json` の採用案78枚の写し（`build_assets.py` が同期）。Git LFS |
 | `out/raw/` | 生成案（`{id:02d}_{slug}_{a,b,c}.png`） |
 | `out/composite/` | 合成済みのカード（`{id:02d}_{slug}.png`） |
 | `out/log.jsonl` | 1案ごとの生成ログ |
 | `out/failures.json` | 直近の実行で失敗した案 |
 
-`out/` は Git の管理対象外です。
+`out/` は Git の管理対象外です。作り直しに必要な決定稿は `final/` に写してあります。
+
+## アプリ用の画像（build_assets.py）
+
+```sh
+py -3.11 build_assets.py                    # 78枚＋裏面を WebP（品質85）で書き出す
+py -3.11 build_assets.py --full-quality 80  # full サイズだけ品質80にする
+py -3.11 review_final.py                    # 最終確認の一覧（out/review/final_*.png）と自動検査
+```
+
+- `selected.json` の採用案をフレームと合成し、`src/assets/cards/{full,medium,thumb}/{id:02d}.webp`（1024×1536、512×768、256×384）と `back.webp`（`refs/backimage_sym.png`）を書き出します。カード名と記号は画像に含めません。
+- 同時に、リポジトリ直下の `src/data/cards.json`（78件のマニフェスト）を書き出し、採用案の PNG を `final/` に同期します（採用から外れたものは削除）。
+- 採用案は `out/raw/` にあればそれを、なければ `final/` を使います。そのため、`out/` のない環境でも作り直せます。
+
+## Git LFS
+
+画像の大きいファイルは Git LFS で管理します（リポジトリ直下の `.gitattributes` を参照）。
+
+| 対象 | 内容 |
+| --- | --- |
+| `src/assets/cards/**/*.webp` | アプリ用のカード画像 |
+| `tools/tarot-gen/final/*.png` | 決定稿（採用案78枚） |
+| `tools/tarot-gen/designs/*.png` | 手描きのワンド・ソード |
+| `tools/tarot-gen/refs/frame.png`、`refs/backimage_sym.png` | 共通フレーム、点対称の裏面 |
+
+設定（このリポジトリでは設定済み。新しく対象を加えるとき）：
+
+```sh
+git lfs install --local                       # このリポジトリだけにフックを入れる
+git lfs track "tools/tarot-gen/final/*.png"   # .gitattributes に追記される
+git add .gitattributes <ファイル>
+git lfs ls-files                              # LFS で管理されているファイルの確認
+```
+
+別の環境での復元：
+
+```sh
+# 1. Git LFS を入れる（Windows は Git for Windows に同梱。macOS は brew install git-lfs）
+git lfs install
+# 2. クローンすると LFS のファイルも自動で取得される
+git clone https://github.com/osprey74/caelum-liber-arcanorum.git
+# 3. LFS を入れる前にクローンした場合や、ファイルが中身のないポインタのままの場合
+git lfs pull
+# 4. 画像を作り直す場合（out/ がなくても final/ から作れる）
+cd caelum-liber-arcanorum/tools/tarot-gen
+py -3.11 -m pip install pillow numpy opencv-python
+py -3.11 build_assets.py
+```
+
+LFS のファイルが取得できていないと、画像は数百バイトのテキスト（ポインタ）になります。`git lfs ls-files` の行頭が `*` なら取得済み、`-` なら未取得です。
 
 ## 生成（generate.py）
 
