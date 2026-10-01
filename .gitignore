@@ -2,3 +2,22 @@ __pycache__/
 *.pyc
 .DS_Store
 Thumbs.db
+
+# Node / Vite
+node_modules
+dist
+dist-ssr
+*.local
+*.log
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+
+# Environment / secrets
+.env
+
+# Tauri
+src-tauri/target/
+src-tauri/gen/schemas/
