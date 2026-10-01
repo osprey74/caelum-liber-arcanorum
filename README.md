@@ -11,6 +11,27 @@ npm run tauri dev
 
 カード絵柄の生成・合成ツールは `tools/tarot-gen/` にあります（`tools/tarot-gen/README.md`）。画像は Git LFS で管理しています。
 
+## AI による解釈
+
+引いたカードの解釈を、Anthropic の Claude API で生成します。
+
+- APIキーは、アプリの「AIの設定」から登録します。キーは OS の資格情報ストア（Windows の資格情報マネージャー、macOS のキーチェーン）に `com.osprey74.liberarcanorum` として保存され、画面やファイルには残りません。
+- モデルの初期値は Claude Sonnet 5.5（`claude-sonnet-5-5`）で、設定画面で Claude Opus 5.5 に切り替えられます。設定ファイル（Windows では `%APPDATA%\liber-arcanorum\config.json`）の `"model"` で、ほかのモデルも指定できます。
+- システムプロンプトは `src/data/interpret-system.md` です。
+- APIキーがなくても、「プロンプトをコピー」でほかの AI に貼り付けて使えます。カードごとの意味は、オフラインでも読めます。
+
+### 相談窓口の案内
+
+問いに深刻な悩みが読み取れる場合は占いを行わずに相談窓口を、暴力・脅し・付きまといなどが読み取れる場合は解釈の前に警察と DV の相談窓口を案内します。文面は `src/data/support.ts`、判定に使う言葉は `src/lib/crisis.ts`（テストは `src/lib/crisis.test.ts`）にあります。
+
+**公開前に、案内文の電話番号と受付時間を次の公式ページで再確認してください。** 番号や受付時間は変わることがあります（最終確認：2026-10-01）。
+
+- 厚生労働省「まもろうよ こころ」：<https://www.mhlw.go.jp/mamorouyokokoro/>
+- 警察庁 警察相談専用電話「#9110」：<https://www.npa.go.jp/bureau/soumu/soudan/soudanmadoguti.pdf>
+- 内閣府 男女共同参画局 DV相談ナビ「#8008」：<https://www.gender.go.jp/policy/no_violence/e-vaw/soudankikan/01.html>
+
+システムプロンプト（`src/data/interpret-system.md`）にも #9110・#8008 の文面があります。番号を変えるときは両方を直してください。
+
 ## 素材のライセンスと出典
 
 ### カード絵柄

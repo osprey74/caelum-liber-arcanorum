@@ -3,7 +3,9 @@ import { Gallery } from "./components/Gallery";
 import { HistoryScreen } from "./components/HistoryScreen";
 import { HomeScreen } from "./components/HomeScreen";
 import { ReadingScreen } from "./components/ReadingScreen";
+import { SupportScreen } from "./components/SupportScreen";
 import { spreadOf } from "./data/readings";
+import { needsSupport } from "./lib/crisis";
 import { drawCards } from "./lib/deck";
 import { setSoundEnabled } from "./lib/sound";
 import { loadSettings, saveReading, saveSettings } from "./lib/storage";
@@ -13,17 +15,20 @@ type Screen =
   | { name: "home" }
   | { name: "reading"; reading: Reading; fromHistory: boolean }
   | { name: "history" }
-  | { name: "gallery" };
+  | { name: "gallery" }
+  | { name: "support" };
 
 /**
  * Development entry points: ?gallery opens the card gallery (phase 2); ?history the history;
  * ?demo=<spread id> shows a sample
- * reading with every card face up (not saved), ?detail=<position> also opens that card's detail.
+ * reading with every card face up (not saved), ?detail=<position> also opens that card's detail; ?support the
+ * support screen; ?panel opens the demo's interpretation panel.
  */
 function startScreen(): Screen {
   const q = new URLSearchParams(window.location.search);
   if (q.has("gallery")) return { name: "gallery" };
   if (q.has("history")) return { name: "history" };
+  if (q.has("support")) return { name: "support" };
   const demo = q.get("demo") as Spread["id"] | null;
   if (demo) {
     const spread = spreadOf(demo);
@@ -55,6 +60,11 @@ function App() {
   };
 
   const start = (spreadId: Spread["id"], question: string) => {
+    // A question showing serious distress is not read: the support screen comes first (nothing is saved).
+    if (needsSupport(question)) {
+      setScreen({ name: "support" });
+      return;
+    }
     const spread = spreadOf(spreadId);
     const reading: Reading = {
       id: crypto.randomUUID(),
@@ -71,6 +81,8 @@ function App() {
   switch (screen.name) {
     case "gallery":
       return <Gallery />;
+    case "support":
+      return <SupportScreen onHome={() => setScreen({ name: "home" })} />;
     case "history":
       return (
         <HistoryScreen
@@ -85,6 +97,9 @@ function App() {
           reading={screen.reading}
           fromHistory={screen.fromHistory}
           initialDetail={screen.reading.id === "demo" && START_DETAIL >= 0 ? START_DETAIL : undefined}
+          initialPanel={screen.reading.id === "demo" && new URLSearchParams(window.location.search).has("panel")}
+          onUpdate={(reading) => reading.id !== "demo" && saveReading(reading)}
+          onSupport={() => setScreen({ name: "support" })}
           onBack={() => setScreen(screen.fromHistory ? { name: "history" } : { name: "home" })}
         />
       );

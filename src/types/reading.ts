@@ -45,4 +45,16 @@ export interface Reading {
   question: string;
   settings: ReadingSettings;
   cards: DrawnCard[];
+  /** The latest AI interpretation, if one was made. */
+  interpretation?: Interpretation;
+}
+
+/** An AI interpretation kept with the reading in the history. */
+export interface Interpretation {
+  /** Markdown text as written by the model (see src/data/interpret-system.md). */
+  text: string;
+  /** Model that wrote it (after any server-side fallback). */
+  model: string;
+  /** ISO 8601 timestamp. */
+  createdAt: string;
 }

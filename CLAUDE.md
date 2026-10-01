@@ -6,7 +6,9 @@
 ## 技術スタック
 - フロントエンド: Tauri v2, React 19, TypeScript, Tailwind CSS 3, Vite 7
 - バックエンド: Rust（Tauri）。Python のサイドカーは使わない
-- AI: Anthropic Claude API（フェーズ5で実装。方式は `handoff-app-implementation.md` §5 を参照）
+- AI: Anthropic Claude API。Rust（`src-tauri/src/interpret.rs`）から HTTPS で直接呼び出す。APIキーは keyring（`com.osprey74.liberarcanorum`）、モデルは `%APPDATA%\liber-arcanorum\config.json`、システムプロンプトは `src/data/interpret-system.md`
+  - 相談窓口の判定は `src/lib/crisis.ts`、文面は `src/data/support.ts`。番号を変えるときはシステムプロンプトの #9110・#8008 も直す
+  - 生成例の確認：`LA_SAMPLE_DIR=<dir> npx vitest run src/lib/samples.node.test.ts` のあと `cd src-tauri && cargo test live_samples -- --ignored`（API の料金がかかる）
 - カード絵柄の生成ツール: `tools/tarot-gen/`（Python 3.11、Pillow・numpy・opencv-python）
 
 ## ディレクトリ

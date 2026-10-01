@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { SPREADS } from "../data/readings";
+import { aiAvailable } from "../lib/ai";
 import type { ReadingSettings, Spread } from "../types/reading";
+import { AiSettingsDialog } from "./AiSettingsDialog";
 
 interface HomeScreenProps {
   settings: ReadingSettings;
@@ -13,6 +15,7 @@ interface HomeScreenProps {
 export function HomeScreen({ settings, onSettingsChange, onStart, onHistory }: HomeScreenProps) {
   const [spreadId, setSpreadId] = useState<Spread["id"]>("three");
   const [question, setQuestion] = useState("");
+  const [aiSettings, setAiSettings] = useState(false);
   const spread = SPREADS.find((s) => s.id === spreadId)!;
   const tooMany = settings.scope === "major" && spread.positions.length > 22;
 
@@ -25,9 +28,16 @@ export function HomeScreen({ settings, onSettingsChange, onStart, onHistory }: H
           </h1>
           <p className="mt-1 text-sm text-ivory/70">スプレッドを選び、心に浮かぶ問いを思い描いてください。</p>
         </div>
-        <button type="button" onClick={onHistory} className="rounded border border-gold/40 px-4 py-1.5 text-sm hover:bg-gold/10">
-          履歴
-        </button>
+        <div className="flex gap-2">
+          {aiAvailable && (
+            <button type="button" onClick={() => setAiSettings(true)} className="rounded border border-gold/40 px-4 py-1.5 text-sm hover:bg-gold/10">
+              AIの設定
+            </button>
+          )}
+          <button type="button" onClick={onHistory} className="rounded border border-gold/40 px-4 py-1.5 text-sm hover:bg-gold/10">
+            履歴
+          </button>
+        </div>
       </header>
 
       <section aria-label="スプレッド" className="grid grid-cols-2 gap-4">
@@ -113,6 +123,7 @@ export function HomeScreen({ settings, onSettingsChange, onStart, onHistory }: H
           山札をシャッフルする
         </button>
       </div>
+      {aiSettings && <AiSettingsDialog onClose={() => setAiSettings(false)} />}
     </div>
   );
 }

@@ -21,5 +21,7 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": ["src"],
+  // Node-only scripts run by vitest (no @types/node in the app)
+  "exclude": ["src/**/*.node.test.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
