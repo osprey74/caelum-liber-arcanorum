@@ -1,6 +1,6 @@
 [package]
 name = "caelum-liber-arcanorum"
-version = "0.1.0"
+version = "1.0.0"
 description = "Liber Arcanorum — tarot reading app of the Caelum series"
 authors = ["osprey74"]
 edition = "2021"
