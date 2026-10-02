@@ -38,7 +38,7 @@ cd src-tauri && cargo check
 
 ## バージョン
 - 更新対象: `package.json`, `src-tauri/Cargo.toml`, `src-tauri/tauri.conf.json`
-- バージョン更新後は `cargo generate-lockfile` で `Cargo.lock` を更新する
+- バージョン更新後は `cd src-tauri && cargo update --workspace` で `Cargo.lock` の自分のパッケージだけを更新する（`cargo generate-lockfile` は依存をすべて最新化するため、Tauri の Rust クレートが npm の `@tauri-apps/*` と minor 違いになると `tauri build` が失敗する。caelum v1.0.8 で発生）
 - 紹介サイトの `site/src/content.ts` の `VERSION`・`SIZE_MB` も合わせて更新する
 
 ## コーディング規約
