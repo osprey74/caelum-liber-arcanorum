@@ -42,6 +42,9 @@ describe("randomInt", () => {
   });
 });
 
+// Tens of thousands of shuffles: a few seconds here, longer on CI runners (8.6 s seen on GitHub's Windows runner).
+const STATS_TIMEOUT = 60_000;
+
 describe("shuffle", () => {
   it("returns a permutation and leaves the input untouched", () => {
     const input = deckIds("all");
@@ -56,14 +59,14 @@ describe("shuffle", () => {
     const counts = new Array(78).fill(0);
     for (let i = 0; i < trials; i++) counts[shuffle(deckIds("all"))[0]]++;
     expect(chiSquare(counts, trials / 78)).toBeLessThan(CHI2_P001[77]);
-  });
+  }, STATS_TIMEOUT);
 
   it("moves a given card to every position equally often", () => {
     const trials = 22 * 500;
     const counts = new Array(22).fill(0);
     for (let i = 0; i < trials; i++) counts[shuffle(deckIds("major")).indexOf(0)]++;
     expect(chiSquare(counts, trials / 22)).toBeLessThan(CHI2_P001[21]);
-  });
+  }, STATS_TIMEOUT);
 });
 
 describe("coinFlip / drawCards", () => {
