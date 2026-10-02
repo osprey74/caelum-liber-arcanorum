@@ -19,6 +19,8 @@
   - `src/types/`       型定義
 - `src-tauri/`   Tauri 設定・Rust コード
 - `tools/tarot-gen/` カード絵柄の生成・合成ツール（アプリには同梱しない。README 参照）
+- `site/`        紹介サイト（Astro、bun）。https://arcanorum.osprey74.com に `.github/workflows/site.yml` で FTP 配置
+- `.github/workflows/release.yml` Windows インストーラー（タグ `v*.*.*` で下書きリリース）
 
 ## 開発コマンド
 ```bash
@@ -37,6 +39,7 @@ cd src-tauri && cargo check
 ## バージョン
 - 更新対象: `package.json`, `src-tauri/Cargo.toml`, `src-tauri/tauri.conf.json`
 - バージョン更新後は `cargo generate-lockfile` で `Cargo.lock` を更新する
+- 紹介サイトの `site/src/content.ts` の `VERSION`・`SIZE_MB` も合わせて更新する
 
 ## コーディング規約
 - TypeScript: strict mode、型定義は `src/types/` に集約

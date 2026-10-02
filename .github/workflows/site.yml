@@ -1,0 +1,50 @@
+name: Deploy site
+
+# Introduction site (site/) → https://arcanorum.osprey74.com (onamae.com, FTP; same server as the portfolio).
+# Needs the repository secrets ONAMAE_HOST, ONAMAE_FTP_USER and ONAMAE_FTP_PASSWORD; without them the site is
+# only built.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - '.github/workflows/site.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-site
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      FTP_HOST: ${{ secrets.ONAMAE_HOST }}
+    defaults:
+      run:
+        working-directory: site
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install
+        run: bun install --frozen-lockfile
+
+      - name: Build
+        run: bun run build
+
+      - name: Deploy via FTP
+        if: env.FTP_HOST != ''
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.ONAMAE_HOST }}
+          username: ${{ secrets.ONAMAE_FTP_USER }}
+          password: ${{ secrets.ONAMAE_FTP_PASSWORD }}
+          local-dir: ./site/dist/
+          server-dir: /arcanorum.osprey74.com/
+          port: 21

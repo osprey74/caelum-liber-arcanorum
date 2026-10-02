@@ -11,6 +11,14 @@ npm run tauri dev
 
 カード絵柄の生成・合成ツールは `tools/tarot-gen/` にあります（`tools/tarot-gen/README.md`）。画像は Git LFS で管理しています。
 
+## 配布と紹介サイト
+
+- **インストーラー**：GitHub Actions（`.github/workflows/release.yml`）で Windows 向けの NSIS インストーラーを作ります。`v1.2.3` の形のタグを push すると下書きのリリースに添付され、手動実行では Artifacts に保存されます。
+- **紹介サイト**：`site/`（Astro）。https://arcanorum.osprey74.com に、`.github/workflows/site.yml` が FTP で配置します（`site/**` を main に push したとき）。配置には、リポジトリの Secrets に `ONAMAE_HOST`・`ONAMAE_FTP_USER`・`ONAMAE_FTP_PASSWORD` が必要です。
+  - 手元での確認：`cd site && bun install && bun run dev`
+  - バージョンを上げたときは、`site/src/content.ts` の `VERSION`（ダウンロードの URL に使います）と `SIZE_MB` も更新します。
+  - サイトの画面写真は `site/public/images/` にあります。アプリの画面を変えたときは撮り直します。
+
 ## AI による解釈
 
 引いたカードの解釈を、Anthropic の Claude API で生成します。

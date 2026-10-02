@@ -1,0 +1,202 @@
+---
+// One page of the introduction site; the text comes from src/content.ts (Japanese or English).
+import "../styles/site.css";
+import { CONTENT, DOWNLOAD, LIBER_CAELI, PORTFOLIO, RELEASE, REPO, type Lang } from "../content";
+
+interface Props {
+  lang: Lang;
+}
+
+const c = CONTENT[Astro.props.lang];
+const site = Astro.site!;
+const canonical = new URL(c.path, site).href;
+const alternate = new URL(c.other.path, site).href;
+const og = new URL("/og.png", site).href;
+const fan = ["card-18", "card-00", "card-17", "card-01", "card-21"];
+const strip = ["card-00", "card-01", "card-02", "card-17", "card-18", "card-19", "card-21"];
+const year = 2026;
+---
+
+<!doctype html>
+<html lang={c.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{c.title}</title>
+    <meta name="description" content={c.description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang={c.lang} href={canonical} />
+    <link rel="alternate" hreflang={c.other.lang} href={alternate} />
+    <link rel="alternate" hreflang="x-default" href={new URL("/", site).href} />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#111f2f" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Liber Arcanorum" />
+    <meta property="og:title" content={c.title} />
+    <meta property="og:description" content={c.description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={og} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content={c.lang === "ja" ? "ja_JP" : "en_US"} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600&family=Zen+Kaku+Gothic+New:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <a class="skip" href="#main">{c.lang === "ja" ? "本文へ" : "Skip to content"}</a>
+    <header class="topbar">
+      <a class="wordmark" href={c.path} aria-label="Liber Arcanorum">
+        <span class="wordmark__title">LIBER ARCANORUM</span>
+        <span class="wordmark__sub">{c.hero.subtitle}</span>
+      </a>
+      <nav aria-label={c.lang === "ja" ? "ページ内の移動" : "Sections"}>
+        <ul>
+          <li><a href="#features">{c.nav.features}</a></li>
+          <li><a href="#screens">{c.nav.screens}</a></li>
+          <li><a href="#ai">{c.nav.ai}</a></li>
+          <li><a href="#download">{c.nav.download}</a></li>
+          <li><a href="#faq">{c.nav.faq}</a></li>
+          <li><a class="lang" href={c.other.path} hreflang={c.other.lang} lang={c.other.lang}>{c.other.label}</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main id="main">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero__rings" aria-hidden="true"></div>
+        <div class="hero__fan" aria-hidden="true">
+          {fan.map((name, i) => <img src={`/images/${name}.webp`} alt="" class={`fan fan--${i}`} width="400" height="600" loading="eager" />)}
+        </div>
+        <h1 id="hero-title" class="hero__title">LIBER ARCANORUM</h1>
+        <p class="hero__subtitle">{c.hero.subtitle}</p>
+        <p class="hero__lead">{c.hero.lead}</p>
+        <div class="hero__cta">
+          <a class="button button--primary" href={DOWNLOAD}>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19h14" /></svg>
+            {c.hero.cta}
+          </a>
+          <p class="hero__meta">{c.hero.meta}<br />{c.hero.notes}</p>
+        </div>
+      </section>
+
+      <section class="intro" aria-labelledby="intro-title">
+        <h2 id="intro-title" class="heading">{c.intro.heading}</h2>
+        {c.intro.body.map((p) => <p>{p}</p>)}
+      </section>
+
+      <section id="features" class="section" aria-labelledby="features-title">
+        <h2 id="features-title" class="heading">{c.features.heading}</h2>
+        <ul class="features">
+          {
+            c.features.items.map((f, i) => (
+              <li class="feature">
+                <span class="feature__num" aria-hidden="true">{["I", "II", "III", "IV", "V", "VI"][i]}</span>
+                <h3>{f.title}</h3>
+                <p>{f.body}</p>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <section id="screens" class="section" aria-labelledby="screens-title">
+        <h2 id="screens-title" class="heading">{c.screens.heading}</h2>
+        <div class="screens">
+          {
+            c.screens.items.map((s, i) => (
+              <figure class={`screen ${i === 0 ? "screen--wide" : ""}`}>
+                <img src={s.src} alt={s.alt} width="1920" height="1290" loading="lazy" decoding="async" />
+                <figcaption>{s.caption}</figcaption>
+              </figure>
+            ))
+          }
+        </div>
+      </section>
+
+      <section class="section cards" aria-labelledby="cards-title">
+        <h2 id="cards-title" class="heading">{c.cards.heading}</h2>
+        <p class="cards__body">{c.cards.body}</p>
+        <div class="cards__strip">
+          {strip.map((name) => <img src={`/images/${name}.webp`} alt="" width="400" height="600" loading="lazy" decoding="async" />)}
+        </div>
+      </section>
+
+      <section id="ai" class="section" aria-labelledby="ai-title">
+        <h2 id="ai-title" class="heading">{c.ai.heading}</h2>
+        <div class="ai">
+          <div class="ai__text">
+            {c.ai.body.map((p) => <p>{p}</p>)}
+            <p class="ai__cost">{c.ai.cost}</p>
+          </div>
+          <ul class="ai__points">
+            {
+              c.ai.points.map((p) => (
+                <li>
+                  <h3>{p.title}</h3>
+                  <p>{p.body}</p>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </section>
+
+      <section class="section care" aria-labelledby="care-title">
+        <h2 id="care-title" class="heading heading--small">{c.care.heading}</h2>
+        {c.care.body.map((p) => <p>{p}</p>)}
+      </section>
+
+      <section id="download" class="section download" aria-labelledby="download-title">
+        <h2 id="download-title" class="heading">{c.download.heading}</h2>
+        <p class="download__req">{c.download.requirements}</p>
+        <ol class="download__steps">
+          {c.download.steps.map((s) => <li>{s}</li>)}
+        </ol>
+        <p class="download__note">{c.download.smartscreen}</p>
+        <div class="download__actions">
+          <a class="button button--primary" href={DOWNLOAD}>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19h14" /></svg>
+            {c.download.cta}
+          </a>
+          <a class="button" href={RELEASE}>{c.download.release}</a>
+        </div>
+        <p class="download__meta">{c.hero.meta} ・ {c.download.mac}</p>
+      </section>
+
+      <section id="faq" class="section" aria-labelledby="faq-title">
+        <h2 id="faq-title" class="heading">{c.faq.heading}</h2>
+        <div class="faq">
+          {
+            c.faq.items.map((f) => (
+              <details>
+                <summary>{f.q}</summary>
+                <p>{f.a}</p>
+              </details>
+            ))
+          }
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer__brand">
+        <span class="wordmark__title">LIBER ARCANORUM</span>
+        <span class="footer__series">{c.footer.series}</span>
+      </div>
+      <ul class="footer__links">
+        <li><a href={LIBER_CAELI}>{c.footer.caeli}</a></li>
+        <li><a href={REPO}>{c.footer.source}</a></li>
+        <li><a href={PORTFOLIO}>osprey74 portfolio</a></li>
+        <li><a href={c.other.path} hreflang={c.other.lang} lang={c.other.lang}>{c.other.label}</a></li>
+      </ul>
+      <p class="footer__small">{c.footer.disclaimer} {c.footer.credits}</p>
+      <p class="footer__small">© {year} osprey74</p>
+    </footer>
+  </body>
+</html>
