@@ -50,7 +50,7 @@ export interface Content {
     mac: string;
   };
   faq: { heading: string; items: Faq[] };
-  footer: { series: string; caeli: string; source: string; credits: string; disclaimer: string };
+  footer: { series: string; caeli: string; source: string; credits: string; disclaimer: string; license: string };
 }
 
 const ja: Content = {
@@ -148,6 +148,7 @@ const ja: Content = {
     source: "ソースコード（GitHub）",
     credits: "カード名には Shippori Mincho（SIL Open Font License 1.1）を使用しています。",
     disclaimer: "占いは娯楽を目的としたものです。",
+    license: "プログラムは MIT License です。カードの絵柄・アイコン・サイトの画像は © osprey74 で、無断での転載・再配布・改変はご遠慮ください。",
   },
 };
 
@@ -247,6 +248,7 @@ const en: Content = {
     source: "Source code (GitHub)",
     credits: "Card names are set in Shippori Mincho (SIL Open Font License 1.1).",
     disclaimer: "Tarot reading is for entertainment.",
+    license: "The program is under the MIT License. The card art, the icon and the images of this site are © osprey74; please do not copy, redistribute or modify them without permission.",
   },
 };
 

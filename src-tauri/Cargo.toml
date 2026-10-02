@@ -3,6 +3,7 @@ name = "caelum-liber-arcanorum"
 version = "1.0.0"
 description = "Liber Arcanorum — tarot reading app of the Caelum series"
 authors = ["osprey74"]
+license = "MIT"
 edition = "2021"
 
 [lib]

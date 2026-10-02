@@ -2,6 +2,7 @@ import { useState } from "react";
 import { SPREADS } from "../data/readings";
 import { aiAvailable } from "../lib/ai";
 import type { ReadingSettings, Spread } from "../types/reading";
+import { AboutDialog } from "./AboutDialog";
 import { AiSettingsDialog } from "./AiSettingsDialog";
 import { Icon } from "./Icon";
 import { SpreadSchematic } from "./SpreadSchematic";
@@ -21,6 +22,7 @@ export function HomeScreen({ settings, onSettingsChange, onStart, onHistory }: H
   const [spreadId, setSpreadId] = useState<Spread["id"]>("three");
   const [question, setQuestion] = useState("");
   const [aiSettings, setAiSettings] = useState(false);
+  const [about, setAbout] = useState(false);
   const spread = SPREADS.find((s) => s.id === spreadId)!;
   const tooMany = settings.scope === "major" && spread.positions.length > 22;
 
@@ -54,6 +56,10 @@ export function HomeScreen({ settings, onSettingsChange, onStart, onHistory }: H
               AIの設定
             </button>
           )}
+          <button type="button" onClick={() => setAbout(true)} className={`${pill} border-gold/45 hover:bg-gold/10`}>
+            <Icon name="info" className="h-[18px] w-[18px] text-gold" />
+            このアプリについて
+          </button>
         </nav>
       </header>
 
@@ -170,6 +176,7 @@ export function HomeScreen({ settings, onSettingsChange, onStart, onHistory }: H
         </section>
       </main>
       {aiSettings && <AiSettingsDialog onClose={() => setAiSettings(false)} />}
+      {about && <AboutDialog onClose={() => setAbout(false)} />}
     </div>
   );
 }

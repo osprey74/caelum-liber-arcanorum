@@ -40,11 +40,17 @@ npm run tauri dev
 
 システムプロンプト（`src/data/interpret-system.md`）にも #9110・#8008 の文面があります。番号を変えるときは両方を直してください。
 
+## ライセンス
+
+- プログラムと文書：[MIT License](LICENSE)
+- カードの絵柄・フレーム・裏面・アイコンなどの画像：© 2026 osprey74。無断での転載・再配布・改変はできません（[LICENSE-ASSETS.md](LICENSE-ASSETS.md)）
+- 書体 Shippori Mincho：SIL Open Font License 1.1（下記）
+
 ## 素材のライセンスと出典
 
 ### カード絵柄
 
-78枚のカード絵柄、フレーム、裏面は、このプロジェクトのために作成したものです。
+78枚のカード絵柄、フレーム、裏面は、このプロジェクトのために作成したものです。ライセンスは [LICENSE-ASSETS.md](LICENSE-ASSETS.md) を参照してください。
 
 ### フォント
 
@@ -56,13 +62,13 @@ npm run tauri dev
 | 著作権者 | Copyright 2021 The Shippori Mincho Project Authors（https://github.com/fontdasu/ShipporiMincho） |
 | 出典 | https://github.com/google/fonts/tree/main/ofl/shipporimincho |
 | ライセンス | SIL Open Font License 1.1。本文は `src/assets/fonts/ShipporiMincho-OFL.txt`（元の TTF とともに `tools/fonts/` にも同梱） |
-| 同梱の形 | 使用する文字だけに絞ったサブセット（WOFF2、約56KB）。`tools/fonts/build_fonts.py` で作成 |
+| 同梱の形 | 使用する文字だけに絞ったサブセット（WOFF2、約57KB）。`tools/fonts/build_fonts.py` で作成 |
 
 OFL の条件により、サブセットにした書体も同じライセンスで配布しています。
 
 #### サブセットの対象文字
 
-アプリには、次の文字だけに絞った Shippori Mincho を同梱しています（264文字、2026-10-01 時点）。
+アプリには、次の文字だけに絞った Shippori Mincho を同梱しています（270文字、2026-10-02 時点）。
 
 - `src/data/cards.json` の全カードの日本語名（`name_ja`）、ローマ数字（`roman`）、英語名（`name_en`）に出てくる文字
 - `src/data/spreads.json` のスプレッド名と位置の名前に出てくる文字
@@ -70,7 +76,7 @@ OFL の条件により、サブセットにした書体も同じライセンス�
 - `tools/fonts/build_fonts.py` の `EXTRA_TEXT`（数字、ローマ数字、「・ー」、「正逆位置表裏面」など）と `DISPLAY_TEXT`（題字・見出し・ボタンの決まった文言）に書いた文字
 
 ```text
- !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~　、。「」いえおかきくこごさしすただつてとにのひぶみよらるれをイウエオカキクグケコシジスセソタットドナハヒフプペホメャラリルレロワン・ー世人伝位体儀先全判制力勢十占去吊周命問囲在塔太女姿字定害審履山帝師底心思恋恐悪意愚戦描教星書最月望未本札来果根標正歴死況浮潜状現男界皇目神秘第節終結置義者術表裏解設読識車輪近逆運過釈陽障隠面顕願魔（）：
+ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~　、。「」あいえおかきくこごさしすただっつてとにのひぶみよらるれをイウエオカキクグケコシジスセソタットドナハヒフプペホメャラリルレロワン・ー世人伝位体使儀先全判利制力勢十占去吊周命問囲在塔太女姿字定害審履山帝師底心思恋恐悪意愚戦描教方星書最月望未本札来果根標正歴死況浮潜状現用男界皇目神秘第節終結置義者術表裏解設読識車輪近逆運過釈陽障隠面顕願魔（）：
 ```
 
 対象文字を追加する手順（意味の文章など、カード名以外にも Shippori Mincho を使う場合）：
