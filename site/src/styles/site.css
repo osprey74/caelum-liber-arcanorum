@@ -286,6 +286,22 @@ summary:focus-visible {
 .intro p {
   color: var(--soft);
 }
+.intro .intro__sister {
+  margin-top: 24px;
+}
+.intro__sister a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 22px;
+  border: 1px solid rgba(201, 169, 97, 0.45);
+  border-radius: 999px;
+  font-size: 15px;
+  text-decoration: none;
+}
+.intro__sister a:hover {
+  background: rgba(201, 169, 97, 0.1);
+}
 .heading {
   margin: 0 0 32px;
   font-family: var(--display);

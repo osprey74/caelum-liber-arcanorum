@@ -5,7 +5,7 @@ export const SIZE_MB = 46;
 export const REPO = "https://github.com/osprey74/caelum-liber-arcanorum";
 export const DOWNLOAD = `${REPO}/releases/download/v${VERSION}/Liber.Arcanorum_${VERSION}_x64-setup.exe`;
 export const RELEASE = `${REPO}/releases/tag/v${VERSION}`;
-export const LIBER_CAELI = "https://portfolio.osprey74.com/apps/liber-caeli";
+export const LIBER_CAELI = "https://caeli.osprey74.com";
 export const PORTFOLIO = "https://portfolio.osprey74.com";
 
 export type Lang = "ja" | "en";
@@ -34,7 +34,7 @@ export interface Content {
   description: string;
   nav: { features: string; screens: string; ai: string; download: string; faq: string };
   hero: { subtitle: string; lead: string; cta: string; meta: string; notes: string };
-  intro: { heading: string; body: string[] };
+  intro: { heading: string; body: string[]; sister: string };
   features: { heading: string; items: Feature[] };
   screens: { heading: string; items: Shot[] };
   cards: { heading: string; body: string };
@@ -74,6 +74,7 @@ const ja: Content = {
       "Liber Arcanorum（リベル・アルカノールム）は、ラテン語で「秘儀の書」。西洋占星術アプリ Liber Caeli と同じ Caelum シリーズの、タロット占いアプリです。",
       "山札をシャッフルし、カードを一枚ずつめくる。その手ざわりを大切にしながら、カードの意味と、必要なときには AI の読み解きを添えて、問いと向き合う時間をつくります。",
     ],
+    sister: "姉妹アプリ Liber Caeli（西洋占星術）の公式サイトへ",
   },
   features: {
     heading: "機能",
@@ -173,6 +174,7 @@ const en: Content = {
       "Liber Arcanorum is Latin for “Book of the Arcana”. It is a tarot reading app of the Caelum series, sister to the astrology app Liber Caeli.",
       "Shuffle the deck and turn the cards one by one. The app keeps that feel, and adds the meaning of each card and, when you want it, a reading written by AI.",
     ],
+    sister: "Visit the sister app Liber Caeli (astrology)",
   },
   features: {
     heading: "Features",
