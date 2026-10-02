@@ -24,13 +24,30 @@
   },
   "bundle": {
     "active": true,
-    "targets": "all",
+    "targets": [
+      "nsis"
+    ],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "publisher": "osprey74",
+    "copyright": "© 2026 osprey74",
+    "category": "Lifestyle",
+    "shortDescription": "Tarot reading app of the Caelum series",
+    "longDescription": "Liber Arcanorum is a tarot reading app with original card art, four spreads, card meanings and optional AI interpretations.",
+    "windows": {
+      "nsis": {
+        "languages": [
+          "Japanese",
+          "English"
+        ],
+        "displayLanguageSelector": false,
+        "installMode": "currentUser"
+      }
+    }
   }
 }
